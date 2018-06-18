@@ -15,6 +15,7 @@
 #define BLOCK_SIZE 16
 #define CHUNCKS_LOADED 0 //0 for unlimited
 #define MAP_MAX_VARIATION 5
+#define CLEAN_MAP_ITERATIONS 3
 
 #define BLOCK_BORDER 1
 #define CHUNCK_BORDER 3
@@ -23,7 +24,6 @@
 #define MAX_CAVE_SIZE {40, 30}
 #define MIN_CAVE_SIZE {20, 15}
 #define CAVES_MIN_SEPARATION 10
-#define CLEAN_CAVE_ITERATIONS 3
 
 struct SDL_Texture;
 
@@ -51,7 +51,7 @@ struct WorldData
 	iPoint maxCaveSize = MAX_CAVE_SIZE;
 	iPoint minCaveSize = MIN_CAVE_SIZE;
 	int cavesMinSeparation = CAVES_MIN_SEPARATION;
-	int cleanCaveIterations = CLEAN_CAVE_ITERATIONS;
+	int cleanMapIterations = CLEAN_MAP_ITERATIONS;
 };
 
 struct block

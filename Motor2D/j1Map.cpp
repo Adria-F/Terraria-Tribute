@@ -115,7 +115,7 @@ void j1Map::loadWorldData(pugi::xml_node data)
 	worldData.maxCaveSize = { data.child("maxCaveSize").attribute("width").as_int(), data.child("maxCaveSize").attribute("height").as_int() };
 	worldData.minCaveSize = { data.child("minCaveSize").attribute("width").as_int(), data.child("minCaveSize").attribute("height").as_int() };
 	worldData.cavesMinSeparation = data.child("cavesMinSeparation").attribute("value").as_int();
-	worldData.cleanCaveIterations = data.child("cleanCaveIterations").attribute("value").as_int();
+	worldData.cleanMapIterations = data.child("cleanMapIterations").attribute("value").as_int();
 }
 
 void j1Map::generateMap()
@@ -124,7 +124,7 @@ void j1Map::generateMap()
 
 	generateFlatMap();
 	generateCaves(10);
-	cleanMapNoise(worldData.cleanCaveIterations);
+	cleanMapNoise(worldData.cleanMapIterations);
 	cleanLonelyBlocks();
 
 	updateBlocksConnections();

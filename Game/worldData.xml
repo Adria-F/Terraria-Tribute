@@ -6,6 +6,8 @@
 	<worldWidth value="400"/>
 	<worldHeight value="100"/>
 	
+	<cleanMapIterations value="3"/>
+	
 	<!-- Different Tiles Levels Rules -->
 	<groundStartHeight value="40"/>
 	<stoneStartHeight value="30"/>
@@ -15,6 +17,5 @@
 	<maxCaveSize width="40" height="30"/>
 	<minCaveSize width="20" height="15"/>
 	<cavesMinSeparation value ="10"/>
-	<cleanCaveIterations value="3"/>
 	
 </generationRules>
