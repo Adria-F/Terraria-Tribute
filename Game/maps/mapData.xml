@@ -1,0 +1,60 @@
+<textures>
+	<texture blockID="1" path="maps/Tiles_2.png"/>
+	<texture blockID="2" path="maps/Tiles_0.png"/>
+	<texture blockID="3" path="maps/Tiles_1.png"/>
+</textures>
+
+<connections>
+	<connection N="false" S="false" E="false" W="false">
+		<section x="162" y="54" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="true" E="true" W="true">
+		<section x="18" y="18" w="16" h="16"/>
+	</connection>
+	<!-- NORTH -->
+	<connection N="true" S="false" E="false" W="false">
+		<section x="108" y="54" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="true" E="false" W="false">
+		<section x="90" y="0" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="false" E="true" W="false">
+		<section x="0" y="72" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="false" E="false" W="true">
+		<section x="18" y="72" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="true" E="true" W="false">
+		<section x="0" y="0" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="false" E="true" W="true">
+		<section x="18" y="36" w="16" h="16"/>
+	</connection>
+	<connection N="true" S="true" E="false" W="true">
+		<section x="72" y="0" w="16" h="16"/>
+	</connection>
+	<!-- SOUTH -->
+	<connection N="false" S="true" E="false" W="false">
+		<section x="108" y="0" w="16" h="16"/>
+	</connection>
+	<connection N="false" S="true" E="true" W="false">
+		<section x="0" y="54" w="16" h="16"/>
+	</connection>
+	<connection N="false" S="true" E="false" W="true">
+		<section x="18" y="54" w="16" h="16"/>
+	</connection>
+	<connection N="false" S="true" E="true" W="true">
+		<section x="18" y="0" w="16" h="16"/>
+	</connection>
+	<!-- EAST -->
+	<connection N="false" S="false" E="true" W="false">
+		<section x="162" y="0" w="16" h="16"/>
+	</connection>
+	<connection N="false" S="false" E="true" W="true">
+		<section x="108" y="72" w="16" h="16"/>
+	</connection>
+	<!-- WEST -->
+	<connection N="false" S="false" E="false" W="true">
+		<section x="216" y="0" w="16" h="16"/>
+	</connection>
+</connections>
