@@ -52,7 +52,8 @@ bool j1Map::Update(float dt)
 	App->render->DrawQuad({ 0,0, worldData.world_width*BLOCK_SIZE, worldData.world_height*BLOCK_SIZE }, Cyan);
 
 	int chunck_counter = 0;
-	LOG("Camera: X: %d | Y: %d", App->render->camera.x, App->render->camera.y);
+
+	//Camera culling
 	iPoint firstBlock = WorldToMap({ App->render->camera.x, App->render->camera.y });
 	iPoint lastBlock = WorldToMap({ App->render->camera.x+App->render->camera.w, App->render->camera.y+App->render->camera.h });
 	lastBlock.x += 1;
@@ -119,9 +120,11 @@ void j1Map::loadWorldData(pugi::xml_node data)
 
 void j1Map::generateMap()
 {
+	BROFILER_CATEGORY("Generate Map", Profiler::Color::DarkGreen);
+
 	generateFlatMap();
-	generateCave(10);
-	cleanCaveNoise(worldData.cleanCaveIterations);
+	generateCaves(10);
+	cleanMapNoise(worldData.cleanCaveIterations);
 	cleanLonelyBlocks();
 
 	updateBlocksConnections();
@@ -153,7 +156,7 @@ void j1Map::generateFlatMap()
 	}
 }
 
-void j1Map::generateCave(int amount)
+void j1Map::generateCaves(int amount)
 {
 	BROFILER_CATEGORY("Generate Cave", Profiler::Color::Blue);
 		
@@ -253,7 +256,7 @@ void j1Map::fillCaveMap(SDL_Rect area)
 	}
 }
 
-void j1Map::cleanCaveNoise(int iterations)
+void j1Map::cleanMapNoise(int iterations)
 {
 	int times = 0;
 	while (times < iterations)
@@ -297,6 +300,7 @@ void j1Map::convertBlockIntoNeighbors(int x, int y)
 	}
 }
 
+//Needed for the convertBlockIntoNeighbors() function
 blockType j1Map::moreRepeatedNeighbor(block * Block)
 {
 	return blockType();
@@ -322,7 +326,7 @@ bool j1Map::collidingWithList(SDL_Rect rect, std::vector<SDL_Rect> list, int mar
 	return ret;
 }
 
-//NEEDS OPTIMIZATION
+//NEEDS OPTIMIZATION | Currently checking for all possible blocks surrounding
 void j1Map::cleanLonelyBlocks()
 {
 	for (int i = 0; i < chuncks.size(); i++)
@@ -405,7 +409,7 @@ void j1Map::setBlock(block* Block, blockType type)
 	Block->type = type;
 }
 
-SDL_Texture * j1Map::getBlockTexture(blockType type)
+SDL_Texture* j1Map::getBlockTexture(blockType type)
 {
 	SDL_Texture* ret = nullptr;
 
@@ -509,25 +513,6 @@ void j1Map::fillPerlinList(std::vector<float>& perlinList, int maxValue, int min
 		previousPerlin = newPerlin;
 		perlinList.push_back(previousPerlin);
 	}
-}
-
-bool cave::collidingWithCave(cave* other)
-{
-	if (this->blocks.size() > 0 && other->blocks.size() > 0 && this->blocks[0] != other->blocks[0])
-	{
-		for (int i = 0; i < this->blocks.size(); i++)
-		{
-			for (int j = 0; j < other->blocks.size(); j++)
-			{
-				if (this->blocks[i]->position.y == other->blocks[j]->position.y && (this->blocks[i]->position.x == other->blocks[j]->position.x - 1 || this->blocks[i]->position.x == other->blocks[j]->position.x + 1))
-					return true;
-				if (this->blocks[i]->position.x == other->blocks[j]->position.x && (this->blocks[i]->position.y == other->blocks[j]->position.y - 1 || this->blocks[i]->position.y == other->blocks[j]->position.y + 1))
-					return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 int block::getNeighborsType(blockType type)

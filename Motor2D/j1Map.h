@@ -75,13 +75,6 @@ struct chunck
 	std::vector<block*> blocks;
 };
 
-struct cave
-{
-	std::vector<block*> blocks;
-
-	bool collidingWithCave(cave* other);
-};
-
 class j1Map : public j1Module
 {
 public:
@@ -105,14 +98,15 @@ public:
 
 	void generateMap();
 	void generateFlatMap();
-	void generateCave(int amount = 1);
 
+	void generateCaves(int amount = 1);
+	bool collidingWithList(SDL_Rect rect, std::vector<SDL_Rect> list, int margin = 0);
 	void fillCaveMap(SDL_Rect area);
-	void cleanCaveNoise(int iterations = 1);
+
+	void cleanMapNoise(int iterations = 1);
 	void convertBlockIntoNeighbors(int x, int y);
 	blockType moreRepeatedNeighbor(block* Block);
 
-	bool collidingWithList(SDL_Rect rect, std::vector<SDL_Rect> list, int margin = 0);
 	void cleanLonelyBlocks();
 	void updateBlocksConnections();
 
