@@ -31,6 +31,7 @@ bool j1Map::Start()
 		loadWorldData(worldData.child("generationRules"));
 
 	generateMap();
+	App->ignoreFrameDelay();
 
 	return true;
 }
@@ -77,7 +78,7 @@ bool j1Map::Update(float dt)
 			if ((App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN || App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT) && App->input->collidingMouse({ pos.x, pos.y, BLOCK_SIZE, BLOCK_SIZE }, true))
 				removeBlock(block);
 
-			if (App->render->debug)
+			if (false)
 			{
 				App->render->DrawQuad({ pos.x, pos.y, BLOCK_SIZE, BLOCK_SIZE }, Black);
 				App->render->DrawQuad({ pos.x + BLOCK_BORDER, pos.y + BLOCK_BORDER, BLOCK_SIZE - BLOCK_BORDER, BLOCK_SIZE - BLOCK_BORDER }, color);

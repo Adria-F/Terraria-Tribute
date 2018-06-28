@@ -6,7 +6,7 @@
 
 #define DEFAULT_ENTITY_SPEED 150
 
-#include "Entity.h"
+class Entity;
 
 class j1EntityManager : public j1Module
 {
@@ -24,15 +24,15 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-	Entity* createAlly(int x, int y);
-	Entity* createEnemy(int x, int y);
+	bool OnCollision(Collider* c1, Collider* c2, collisionType type);
+	bool OnEndCollision(Collider* c1, Collider* c2, collisionType type);
 
-	Entity* getEntity(int id);
+	Entity* getEntity(int id) const;
+	Entity* getEntityByCollider(Collider* c) const;
 
 public:
 
 	std::list<Entity*> entities;
-	Entity* selected_entity = nullptr;
 };
 
 #endif / __J1ENTITYMANAGER_H__

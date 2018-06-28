@@ -20,6 +20,7 @@ class j1Scene;
 class j1Fonts;
 class j1Gui;
 class j1EntityManager;
+class j1CollisionManager;
 class j1Map;
 
 class j1App
@@ -60,6 +61,8 @@ public:
 	void resumeGame();
 	bool isGamePaused() const;
 
+	void ignoreFrameDelay();
+
 	// Load config file
 	pugi::xml_node LoadConfig(pugi::xml_document&, char* file = "config.xml") const;
 
@@ -84,7 +87,6 @@ private:
 	bool LoadGameNow();
 	bool SavegameNow() const;
 
-
 public:
 
 	// Modules
@@ -98,6 +100,8 @@ public:
 	j1Gui*				gui;
 	j1EntityManager*	entitymanager;
 	j1Map*				map;
+	j1CollisionManager* collisions;
+
 	bool fpsCapON = true;
 	std::string			load_game;
 

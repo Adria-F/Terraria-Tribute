@@ -3,45 +3,80 @@
 
 #include "p2Point.h"
 #include "j1Render.h"
-#include "j1App.h"
+#include "p2Animation.h"
+
+#define DEFAULT_SPEED_INCREMENT 10
+#define DEFAULT_JUMP_FORCE 750
+#define GRAVITY 40
+
+struct Collider;
 
 enum entity_type
 {
-	ALLY,
+	NO_ENTITY = 0,
+
+	PLAYER,
 	ENEMY
+};
+
+enum entity_state
+{
+	IDLE = 0,
+
+	MOVING,
+
+	JUMPING,
+
+	FALLING
+};
+
+enum faceLooking
+{
+	RIGHT = 0,
+	LEFT
 };
 
 class Entity
 {
 public:
-	Entity(float x, float y, entity_type type): position({x,y}), type(type)
-	{}
+	Entity(float x, float y, int w, int h, entity_type type);
 	~Entity()
 	{}
 
-	virtual void Draw()
-	{
-		Color usingColor = White;
-		switch (type)
-		{
-		case ALLY:
-			usingColor = Blue;
-			break;
-		case ENEMY:
-			usingColor = Red;
-			break;
-		}
+	virtual void Update()
+	{}
 
-		App->render->DrawQuad({ (int)position.x, (int)position.y, section.w, section.h }, usingColor);
-	}
+	virtual void Draw(float dt);
+
+	bool physicsUpdate(float dt);
+
+	void OnCollision(Collider* c1, Collider* c2, collisionType type);
+	void OnEndCollision(Collider* c1, Collider* c2, collisionType type);
 
 public:
 
-	fPoint position = { 0.0f,0.0f };
-	entity_type type = ALLY;
 	uint id = 0;
-	SDL_Rect section = { 0,0,20,30 };
+	entity_type type = NO_ENTITY;
 	bool active = true;
+
+	fPoint position = { 0.0f,0.0f };
+	SDL_Rect section = { 0,0,20,30 };
+	
+	Collider* collider = nullptr;
+	iPoint collider_offset = { 0,0 };
+	bool onFloor = false;
+
+	entity_state state = IDLE;
+	faceLooking facing = RIGHT;
+	Animation* animation = nullptr;
+
+	float X_speed = 0.0f;
+	float Y_speed = 0.0f;
+
+	float maxXSpeed = 200.0f;
+	float maxYSpeed = 500.0f;
+
+	
 };
 
 #endif // __ENTITY_H__

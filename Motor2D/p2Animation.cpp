@@ -26,6 +26,11 @@ SDL_Rect& Animation::GetCurrentFrame(float dt)
 	return frames[(int)current_frame];
 }
 
+SDL_Rect& Animation::GetCurrentFrame()
+{
+	return frames[(int)current_frame];
+}
+
 bool Animation::LoadAnimation(pugi::xml_node& data)
 {
 	int width = data.child("Width").attribute("value").as_int();
@@ -43,6 +48,22 @@ bool Animation::LoadAnimation(pugi::xml_node& data)
 
 bool Animation::Finished() const				{ return loops > 0; }
 void Animation::Reset()							{ current_frame = 0; }
+void Animation::skipFrame(float dt)
+{
+	float tmp = speed;
+	current_frame += tmp * dt;
+
+	if (current_frame < 0)
+	{
+		current_frame = 0;
+	}
+
+	if (current_frame >= last_frame)
+	{
+		current_frame = (loop) ? 0.0f : last_frame - 1;
+		loops++;
+	}
+}
 float Animation::GetCurrentFrameinFloat()		{ return current_frame; }
 int Animation::GetLastFrameinInt()				{ return last_frame;}
 void Animation::ChangeCurrentFrame(float frame)	{ current_frame = frame; }

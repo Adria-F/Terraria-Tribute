@@ -12,6 +12,8 @@
 #include "p2Log.h"
 
 class UIElement;
+struct Collider;
+enum collisionType;
 
 class j1Module
 {
@@ -29,6 +31,8 @@ public:
 	virtual bool CleanUp()									{ return true; }
 
 	virtual bool OnEvent(UIElement* element, int eventType) { return true; }
+	virtual bool OnCollision(Collider* c1, Collider* c2, collisionType type)	{ return true; }
+	virtual bool OnEndCollision(Collider* c1, Collider* c2, collisionType type) { return true; }
 
 	virtual bool Load(pugi::xml_node&)						{ return true; }
 	virtual bool Save(pugi::xml_node&) const				{ return true; }

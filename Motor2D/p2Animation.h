@@ -24,9 +24,11 @@ public:
 
 	void PushBack(const SDL_Rect& rect);
 	SDL_Rect& GetCurrentFrame(float dt);
+	SDL_Rect& GetCurrentFrame();
 
 	bool Finished() const;
 	void Reset();
+	void skipFrame(float dt);
 
 	float GetCurrentFrameinFloat();
 	int GetLastFrameinInt();

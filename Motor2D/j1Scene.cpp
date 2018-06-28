@@ -8,6 +8,7 @@
 #include "j1Window.h"
 #include "j1Scene.h"
 #include "j1EntityManager.h"
+#include "j1CollisionManager.h"
 
 j1Scene::j1Scene() : j1Module() { name = "scene"; }
 
@@ -18,6 +19,8 @@ j1Scene::~j1Scene() {}
 bool j1Scene::Awake(pugi::xml_node& config)
 {
 	LOG("Loading Scene");
+
+	App->collisions->AddCollider(0, 640, 750, 50, FLOOR_COLLIDER);
 
 	return true;
 }
