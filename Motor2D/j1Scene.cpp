@@ -21,6 +21,7 @@ bool j1Scene::Awake(pugi::xml_node& config)
 	LOG("Loading Scene");
 
 	App->collisions->AddCollider(0, 640, 750, 50, FLOOR_COLLIDER);
+	App->collisions->AddCollider(400, 600, 50, 40, FLOOR_COLLIDER);
 
 	return true;
 }
@@ -45,7 +46,7 @@ bool j1Scene::Update(float dt)
 }
 
 // Called each loop iteration
-bool j1Scene::PostUpdate()
+bool j1Scene::PostUpdate(float dt)
 {
 
 	return true;

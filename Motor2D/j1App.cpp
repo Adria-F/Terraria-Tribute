@@ -235,7 +235,7 @@ bool j1App::PostUpdate()
 	{
 		if ((*it)->active)
 		{
-			if (!(*it)->PostUpdate())
+			if (!(*it)->PostUpdate(DeltaTime))
 				return false;
 		}
 	}

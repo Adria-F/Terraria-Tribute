@@ -21,10 +21,13 @@ public:
 	// Called each loop iteration
 	bool Update(float dt);
 
+	bool PostUpdate(float dt);
+
 	// Called before quitting
 	bool CleanUp();
 
 	bool OnCollision(Collider* c1, Collider* c2, collisionType type);
+	bool DuringCollision(Collider* c1, Collider* c2, collisionType type);
 	bool OnEndCollision(Collider* c1, Collider* c2, collisionType type);
 
 	Entity* getEntity(int id) const;

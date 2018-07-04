@@ -93,18 +93,61 @@ bool Entity::physicsUpdate(float dt)
 
 void Entity::OnCollision(Collider* c1, Collider* c2, collisionType type)
 {
-	if (c2->type == FLOOR_COLLIDER && type == TOP_COLLISION)
+	if (c2->type == FLOOR_COLLIDER)
 	{
-		Y_speed = 0;
-		position.y = c2->section.y -c1->section.h - collider_offset.y + 1;
-		onFloor = true;
-		if (state == FALLING)
-			state = IDLE;
+		switch (type)
+		{
+		case TOP_COLLISION:
+			Y_speed = 0;
+			position.y = c2->section.y + c2->section.h - collider_offset.y;
+			if (state == JUMPING)
+				state = FALLING;
+			break;
+		case BOTTOM_COLLISION:		
+			Y_speed = 0;
+			position.y = c2->section.y - c1->section.h - collider_offset.y + 1;
+			onFloor = true;
+			if (state == FALLING)
+				state = IDLE;
+			break;
+		case LEFT_COLLISION:
+			X_speed = 0;
+			position.x = c2->section.x + c2->section.w - collider_offset.x;
+			break;
+		case RIGHT_COLLISION:
+			X_speed = 0;
+			position.x = c2->section.x - c1->section.w - collider_offset.x;
+			break;
+		}	
+	}
+}
+
+void Entity::DuringCollision(Collider* c1, Collider* c2, collisionType type)
+{
+	if (c2->type == FLOOR_COLLIDER)
+	{
+		switch (type)
+		{
+		case TOP_COLLISION:
+			break;
+		case BOTTOM_COLLISION:
+			break;
+		case LEFT_COLLISION:
+			X_speed = 0;
+			position.x = c2->section.x + c2->section.w - collider_offset.x;
+			break;
+		case RIGHT_COLLISION:
+			X_speed = 0;
+			position.x = c2->section.x - c1->section.w - collider_offset.x;
+			break;
+		}
 	}
 }
 
 void Entity::OnEndCollision(Collider* c1, Collider* c2, collisionType type)
 {
-	if (c2->type == FLOOR_COLLIDER && type == TOP_COLLISION)
+	if (c2->type == FLOOR_COLLIDER && type == BOTTOM_COLLISION)
 		onFloor = false;
+	if (type == LEFT_COLLISION)
+		LOG("A");
 }

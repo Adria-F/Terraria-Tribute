@@ -59,9 +59,9 @@ public:
 	j1CollisionManager();
 	~j1CollisionManager();
 
-	bool PreUpdate();
-
 	bool Update(float dt);
+
+	bool PostUpdate(float dt);
 
 	// Called before quitting
 	bool CleanUp();
@@ -70,8 +70,9 @@ public:
 
 	int collisionAlreadyExists(const Collision& collision);
 
-	//Return collision type of c1 with c2
+	//Return collision type of c1 with c2 seen from c1 perspective
 	collisionType checkCollision(Collider* c1, Collider* c2) const;
+	collisionType inverseCollision(collisionType original) const;
 
 public:
 

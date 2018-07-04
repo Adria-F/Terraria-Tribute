@@ -43,15 +43,18 @@ public:
 	~Entity()
 	{}
 
-	virtual void Update()
+	virtual void Update() //Calculate movement of the frame
 	{}
 
-	virtual void Draw(float dt);
+	bool physicsUpdate(float dt); //Do the movement
 
-	bool physicsUpdate(float dt);
-
-	void OnCollision(Collider* c1, Collider* c2, collisionType type);
+	//Check collisions and act accordingly
+	void OnCollision(Collider* c1, Collider* c2, collisionType type); 
+	void DuringCollision(Collider* c1, Collider* c2, collisionType type);
 	void OnEndCollision(Collider* c1, Collider* c2, collisionType type);
+
+	virtual void Draw(float dt); //Draw the correct position
+
 
 public:
 

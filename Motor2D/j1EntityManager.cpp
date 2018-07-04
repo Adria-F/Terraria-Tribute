@@ -33,16 +33,23 @@ bool j1EntityManager::Update(float dt)
 		if ((*it_e)->active)
 		{
 			(*it_e)->Update();
-			//CAMERA CULLING
-			(*it_e)->Draw(dt);
+			(*it_e)->physicsUpdate(dt);			
 		}
 	}
 
+	
+
+	return true;
+}
+
+bool j1EntityManager::PostUpdate(float dt)
+{
 	for (std::list<Entity*>::iterator it_e = entities.begin(); it_e != entities.end(); it_e++)
 	{
 		if ((*it_e)->active)
 		{
-			(*it_e)->physicsUpdate(dt);
+			//CAMERA CULLING
+			(*it_e)->Draw(dt);
 		}
 	}
 
@@ -67,6 +74,15 @@ bool j1EntityManager::OnCollision(Collider* c1, Collider* c2, collisionType type
 	Entity* entity = getEntityByCollider(c1);
 	if (entity != nullptr)
 		entity->OnCollision(c1, c2, type);
+
+	return true;
+}
+
+bool j1EntityManager::DuringCollision(Collider * c1, Collider * c2, collisionType type)
+{
+	Entity* entity = getEntityByCollider(c1);
+	if (entity != nullptr)
+		entity->DuringCollision(c1, c2, type);
 
 	return true;
 }

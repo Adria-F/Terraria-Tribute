@@ -10,7 +10,7 @@ j1CollisionManager::~j1CollisionManager()
 {
 }
 
-bool j1CollisionManager::PreUpdate()
+bool j1CollisionManager::Update(float dt)
 {
 	for (std::list<Collider*>::iterator it_c1 = colliders.begin(); it_c1 != colliders.end(); it_c1++)
 	{
@@ -22,23 +22,33 @@ bool j1CollisionManager::PreUpdate()
 
 			int collisionExists = collisionAlreadyExists(collision);
 
-			if (type != NO_COLLISION && collisionExists == -1)
+			if (type != NO_COLLISION) //There is a collision
 			{
-				if ((*it_c1)->callback != nullptr)
-					(*it_c1)->callback->OnCollision((*it_c1), (*it_c2), type);
-				if ((*it_c2)->callback != nullptr)
-					(*it_c2)->callback->OnCollision((*it_c2), (*it_c1), type);
+				if (collisionExists == -1) //Collision did not exist previously
+				{
+					if ((*it_c1)->callback != nullptr)
+						(*it_c1)->callback->OnCollision((*it_c1), (*it_c2), type);
+					if ((*it_c2)->callback != nullptr)
+						(*it_c2)->callback->OnCollision((*it_c2), (*it_c1), inverseCollision(type));
 
-				onGoingCollisions.push_back(collision);
+					onGoingCollisions.push_back(collision); //Add it to the existing collisions
+				}
+				else //Collision did exist previously
+				{
+					if ((*it_c1)->callback != nullptr)
+						(*it_c1)->callback->DuringCollision((*it_c1), (*it_c2), onGoingCollisions[collisionExists].type);
+					if ((*it_c2)->callback != nullptr)
+						(*it_c2)->callback->DuringCollision((*it_c2), (*it_c1), inverseCollision(onGoingCollisions[collisionExists].type));
+				}
 			}
-			else if (type == NO_COLLISION && collisionExists != -1)
+			else if (type == NO_COLLISION && collisionExists != -1) //Collision existed previously but they are no longer colliding
 			{
 				if ((*it_c1)->callback != nullptr)
 					(*it_c1)->callback->OnEndCollision((*it_c1), (*it_c2), onGoingCollisions[collisionExists].type);
 				if ((*it_c2)->callback != nullptr)
-					(*it_c2)->callback->OnEndCollision((*it_c2), (*it_c1), onGoingCollisions[collisionExists].type);
+					(*it_c2)->callback->OnEndCollision((*it_c2), (*it_c1), inverseCollision(onGoingCollisions[collisionExists].type));
 
-				onGoingCollisions.erase(onGoingCollisions.begin() + collisionExists);
+				onGoingCollisions.erase(onGoingCollisions.begin() + collisionExists); //Remove it from the existing collisions
 			}
 		}
 	}
@@ -46,9 +56,9 @@ bool j1CollisionManager::PreUpdate()
 	return true;
 }
 
-bool j1CollisionManager::Update(float dt)
+bool j1CollisionManager::PostUpdate(float dt)
 {
-	if (App->render->debug)
+	if (App->render->debug) //Draw colliders in debug
 	{
 		for (std::list<Collider*>::iterator it_c = colliders.begin(); it_c != colliders.end(); it_c++)
 		{
@@ -121,11 +131,37 @@ collisionType j1CollisionManager::checkCollision(Collider* c1, Collider* c2) con
 		else if (c1->section.y < c1->previousPos.y || c2->section.y > c2->previousPos.y) //C1 is moving dow or C2 is moving up
 			ret = TOP_COLLISION;
 		else if (c1->section.x > c1->previousPos.x || c2->section.x < c2->previousPos.x) //C1 is moving right or C2 is moving left
-			ret = LEFT_COLLISION;
-		else if (c1->section.x < c1->previousPos.x || c2->section.x > c2->previousPos.x) //C1 is moving right or C2 is moving left
 			ret = RIGHT_COLLISION;
+		else if (c1->section.x < c1->previousPos.x || c2->section.x > c2->previousPos.x) //C1 is moving left or C2 is moving right
+			ret = LEFT_COLLISION;
 	}
 
+
+	return ret;
+}
+
+collisionType j1CollisionManager::inverseCollision(collisionType original) const
+{
+	collisionType ret = UNKNOWN_COLLISION;
+
+	switch (original)
+	{
+	case NO_COLLISION:
+		ret = NO_COLLISION;
+		break;
+	case TOP_COLLISION:
+		ret = BOTTOM_COLLISION;
+		break;
+	case BOTTOM_COLLISION:
+		ret = TOP_COLLISION;
+		break;
+	case LEFT_COLLISION:
+		ret = RIGHT_COLLISION;
+		break;
+	case RIGHT_COLLISION:
+		ret = LEFT_COLLISION;
+		break;
+	}
 
 	return ret;
 }

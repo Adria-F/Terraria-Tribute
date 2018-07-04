@@ -26,12 +26,14 @@ public:
 
 	virtual bool PreUpdate()								{ return true; }
 	virtual bool Update(float dt)							{ return true; }
-	virtual bool PostUpdate()								{ return true; }
+	virtual bool PostUpdate(float dt)								{ return true; }
 
 	virtual bool CleanUp()									{ return true; }
 
 	virtual bool OnEvent(UIElement* element, int eventType) { return true; }
+
 	virtual bool OnCollision(Collider* c1, Collider* c2, collisionType type)	{ return true; }
+	virtual bool DuringCollision(Collider* c1, Collider* c2, collisionType type) { return true; }
 	virtual bool OnEndCollision(Collider* c1, Collider* c2, collisionType type) { return true; }
 
 	virtual bool Load(pugi::xml_node&)						{ return true; }
