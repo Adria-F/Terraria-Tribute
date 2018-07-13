@@ -43,8 +43,6 @@ struct Collider
 
 	j1Module* callback = nullptr;
 
-	iPoint previousPos = { 0,0 };
-
 	void updatePosition(int x, int y, iPoint offset = { 0,0 });
 };
 

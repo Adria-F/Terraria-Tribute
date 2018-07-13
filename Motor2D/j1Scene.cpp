@@ -20,9 +20,6 @@ bool j1Scene::Awake(pugi::xml_node& config)
 {
 	LOG("Loading Scene");
 
-	/*App->collisions->AddCollider(0, 640, 750, 50, FLOOR_COLLIDER, true);
-	App->collisions->AddCollider(400, 600, 50, 40, FLOOR_COLLIDER, true);*/
-
 	return true;
 }
 

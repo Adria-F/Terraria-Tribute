@@ -209,42 +209,7 @@ collisionType j1CollisionManager::checkCollision(Collider* c1, Collider* c2) con
 			ret = RIGHT_COLLISION;
 		else if (l_distance < b_distance && l_distance < t_distance && l_distance < r_distance)
 			ret = LEFT_COLLISION;
-
-
-
-		/*if (c1->section.y > c1->previousPos.y || c2->section.y < c2->previousPos.y) //C1 is down up or C2 is moving up
-			ret = BOTTOM_COLLISION;
-		else if (c1->section.y < c1->previousPos.y || c2->section.y > c2->previousPos.y) //C1 is moving up or C2 is moving down
-			ret = TOP_COLLISION;
-
-		if (ret == UNKNOWN_COLLISION)
-		{
-			if (c1->section.x > c1->previousPos.x || c2->section.x < c2->previousPos.x) //C1 is moving right or C2 is moving left
-				ret = RIGHT_COLLISION;
-			else if (c1->section.x < c1->previousPos.x || c2->section.x > c2->previousPos.x) //C1 is moving left or C2 is moving right
-				ret = LEFT_COLLISION;
-		}
-		else if (c1->section.x != c1->previousPos.x || c2->section.x != c2->previousPos.x)
-		{
-			int c1VSpeed = abs(c1->section.y - c1->previousPos.y);
-			int c2VSpeed = abs(c2->section.y - c2->previousPos.y);
-			int c1HSpeed = abs(c1->section.x - c1->previousPos.x);
-			int c2HSpeed = abs(c2->section.x - c2->previousPos.x);
-
-			int VSpeed = (c1VSpeed > c2VSpeed) ? c1VSpeed : c2VSpeed;
-			int HSpeed = (c1HSpeed > c2HSpeed) ? c1HSpeed : c2HSpeed;
-
-			if (VSpeed > HSpeed)
-			{
-				if ((c1->section.x > c1->previousPos.x || c2->section.x < c2->previousPos.x) && c2->previousPos.x >= c1->previousPos.x+c1->section.w) //C1 is moving right or C2 is moving left
-					ret = RIGHT_COLLISION;
-				else if ((c1->section.x < c1->previousPos.x || c2->section.x > c2->previousPos.x) && c1->previousPos.x >= c2->previousPos.x + c2->section.w) //C1 is moving left or C2 is moving right
-					ret = LEFT_COLLISION;
-			}
-
-		}*/
 	}
-
 
 	return ret;
 }
@@ -275,7 +240,7 @@ collisionType j1CollisionManager::inverseCollision(collisionType original) const
 	return ret;
 }
 
-Collider::Collider(SDL_Rect section, bool isStatic, j1Module* callback) : section(section), previousPos({ section.x, section.y }), callback(callback)
+Collider::Collider(SDL_Rect section, bool isStatic, j1Module* callback) : section(section), callback(callback)
 {
 	if (!isStatic)
 		moveType = NON_STATIC;
@@ -283,7 +248,6 @@ Collider::Collider(SDL_Rect section, bool isStatic, j1Module* callback) : sectio
 
 void Collider::updatePosition(int x, int y, iPoint offset)
 {
-	previousPos = { section.x, section.y };
 	section.x = x + offset.x;
 	section.y = y + offset.y;
 }
