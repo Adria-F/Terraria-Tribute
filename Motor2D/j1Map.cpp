@@ -3,6 +3,7 @@
 #include "j1Render.h"
 #include "j1Input.h"
 #include "j1Textures.h"
+#include "j1CollisionManager.h"
 #include <time.h>
 
 j1Map::j1Map()
@@ -127,6 +128,7 @@ void j1Map::generateMap()
 	generateCaves(10);
 	cleanMapNoise(worldData.cleanMapIterations);
 	cleanLonelyBlocks();
+	createColliders();
 
 	updateBlocksConnections();
 }
@@ -150,10 +152,85 @@ void j1Map::generateFlatMap()
 					curr_block->type = STONE;
 				else if (curr_block->position.y >(worldData.groundStartHeight + (int)(worldData.mapMaxVariation*grassPerlin[curr_block->position.x])))
 					curr_block->type = DIRT;
+
 				curr_chunck->blocks.push_back(curr_block);
 			}
 		}
 		chuncks.push_back(curr_chunck);
+	}
+}
+
+void j1Map::createColliders()
+{
+	int firstBlock = 0;
+	int lastBlock = 0;
+	int currY = 0;
+
+	Collider* currCollider = nullptr;
+
+	bool firstFound = false;
+
+	for (int j = 0; j < worldData.world_height; j++)
+	{
+		for (int i = 0; i < worldData.world_width; i++)
+		{
+			block* currBlock = getBlockAt(i, j);
+			if (currBlock == nullptr || currBlock->collider != nullptr)
+				continue;
+
+			if (currBlock->type != AIR && !(firstFound && currBlock->position.x < firstBlock))
+			{
+				if (!firstFound)
+				{
+					firstBlock = lastBlock = currBlock->position.x;
+					currY = currBlock->position.y;
+					
+					iPoint worldPos = MapToWorld({ currBlock->position.x, currBlock->position.y });
+					currCollider = App->collisions->AddCollider(worldPos.x, worldPos.y, currBlock->section.w, currBlock->section.h, FLOOR_COLLIDER, true);
+					currBlock->collider = currCollider;
+					
+					firstFound = true;
+				}
+				else
+				{
+					lastBlock++;
+					currCollider->section.w += currBlock->section.w;
+					currBlock->collider = currCollider;
+				}
+			}
+			else if (firstFound)
+			{
+				bool continueBelow = false;
+				while (continueBelow)
+				{
+					currY++;
+					for (int k = firstBlock; k <= lastBlock; k++)
+					{
+						block* Block = getBlockAt(k, currY);
+						if (Block == nullptr || Block->type == AIR)
+						{
+							continueBelow = false;
+							break;
+						}
+					}
+					if (continueBelow)
+					{
+						currCollider->section.h += BLOCK_SIZE;
+						for (int k = firstBlock; k <= lastBlock; k++)
+						{
+							block* Block = getBlockAt(k, currY);
+							Block->collider = currCollider;
+
+						}
+					}
+
+				}
+
+				firstFound = false;
+
+				currCollider = nullptr;
+			}
+		}
 	}
 }
 
@@ -230,7 +307,7 @@ void j1Map::fillCaveMap(SDL_Rect area)
 				block* Block = getBlockAt(extraX, j);
 				if (Block != nullptr)
 				{
-					Block->type = AIR;
+					removeBlock(Block, false);
 					if (lastAir)
 						repetition++;
 					else
@@ -340,6 +417,11 @@ void j1Map::cleanLonelyBlocks()
 				if (block->getNeighborsType((blockType)i) == 4)
 					setBlock(block, (blockType)i);
 			}
+			/*if (block->type == AIR && block->collider != nullptr)
+			{
+				App->collisions->removeCollider(block->collider);
+				block->collider = nullptr;
+			}*/
 		}
 	}
 }
@@ -383,19 +465,33 @@ void j1Map::removeBlock(int x, int y)
 	{
 		Block->type = AIR;
 
+		if (Block->collider != nullptr)
+		{
+			App->collisions->removeCollider(Block->collider); //It will change when blocks can be placed
+			Block->collider = nullptr;
+		}
+
 		std::vector<block*> neighbors = Block->getNeighbors();
 		for (int i = 0; i < neighbors.size(); i++)
 			neighbors[i]->updateSection();
 	}
 }
 
-void j1Map::removeBlock(block* Block)
+void j1Map::removeBlock(block* Block, bool updateSurroundings)
 {
 	Block->type = AIR;
+	if (Block->collider != nullptr)
+	{
+		App->collisions->removeCollider(Block->collider); //It will change when blocks can be placed
+		Block->collider = nullptr;
+	}
 
-	std::vector<block*> neighbors = Block->getNeighbors();
-	for (int i = 0; i < neighbors.size(); i++)
-		neighbors[i]->updateSection();
+	if (updateSurroundings)
+	{
+		std::vector<block*> neighbors = Block->getNeighbors();
+		for (int i = 0; i < neighbors.size(); i++)
+			neighbors[i]->updateSection();
+	}
 }
 
 void j1Map::setBlock(int x, int y, blockType type)

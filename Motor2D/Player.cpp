@@ -4,7 +4,7 @@
 #include "j1Input.h"
 #include "j1Textures.h"
 
-Player::Player(): Entity(0, 586, 40, 54, PLAYER)
+Player::Player(): Entity(0, 300, 40, 54, PLAYER) //586
 {
 	hair = App->tex->Load("assets/player/Player_Hair_1.png");
 	head = App->tex->Load("assets/player/Player_Head.png");
@@ -31,6 +31,7 @@ Player::Player(): Entity(0, 586, 40, 54, PLAYER)
 	collider->section.w = 24;
 	collider->section.h = 45;
 	collider_offset = { 8, 9 };
+	collider->type = PLAYER_COLLIDER;
 }
 
 Player::~Player()

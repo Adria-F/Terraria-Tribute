@@ -26,6 +26,7 @@
 #define CAVES_MIN_SEPARATION 10
 
 struct SDL_Texture;
+struct Collider;
 
 enum blockType
 {
@@ -59,6 +60,7 @@ struct block
 	blockType type = AIR;
 	iPoint position = { 0,0 };
 	SDL_Rect section = { 0,0,16,16 };
+	Collider* collider = nullptr;
 
 	int getNeighborsType(blockType type);
 	std::vector<block*> getNeighbors();
@@ -98,6 +100,7 @@ public:
 
 	void generateMap();
 	void generateFlatMap();
+	void createColliders();
 
 	void generateCaves(int amount = 1);
 	bool collidingWithList(SDL_Rect rect, std::vector<SDL_Rect> list, int margin = 0);
@@ -117,7 +120,7 @@ public:
 
 	void removeBlock(int x, int y);
 	//Enter the block in order to avoid looking for it
-	void removeBlock(block* Block);
+	void removeBlock(block* Block, bool updateSurroundings = true);
 
 	void setBlock(int x, int y, blockType type);
 	//Enter the block in order to avoid looking for it

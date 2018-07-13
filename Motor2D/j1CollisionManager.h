@@ -16,6 +16,12 @@ enum colliderType
 	MAX_COLLIDERS
 };
 
+enum colliderMovement
+{
+	STATIC = 0,
+	NON_STATIC
+};
+
 enum collisionType
 {
 	NO_COLLISION = 0,
@@ -29,10 +35,11 @@ enum collisionType
 
 struct Collider
 {
-	Collider(SDL_Rect section, j1Module* callback = nullptr);
+	Collider(SDL_Rect section, bool isStatic = false, j1Module* callback = nullptr);
 
 	SDL_Rect section = { 0,0,0,0 };
 	colliderType type = NO_COLLIDER;
+	colliderMovement moveType = STATIC;
 
 	j1Module* callback = nullptr;
 
@@ -66,7 +73,8 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-	Collider* AddCollider(int x, int y, int w, int h, colliderType type = NO_COLLIDER, j1Module* callback = nullptr);
+	Collider* AddCollider(int x, int y, int w, int h, colliderType type = NO_COLLIDER, bool isStatic = false, j1Module* callback = nullptr);
+	void removeCollider(Collider* collider);
 
 	int collisionAlreadyExists(const Collision& collision);
 
@@ -76,7 +84,8 @@ public:
 
 public:
 
-	std::list<Collider*> colliders;
+	std::list<Collider*> static_colliders;
+	std::list<Collider*> nonStatic_colliders;
 
 	std::vector<Collision> onGoingCollisions;
 };

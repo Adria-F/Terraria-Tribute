@@ -5,7 +5,7 @@
 
 Entity::Entity(float x, float y, int w, int h, entity_type type) : position({ x,y }), type(type), section({0,0,w,h})
 {
-	collider = App->collisions->AddCollider(x, y, section.w, section.h, NO_COLLIDER, (j1Module*)App->entitymanager);
+	collider = App->collisions->AddCollider(x, y, section.w, section.h, NO_COLLIDER, false, (j1Module*)App->entitymanager);
 }
 
 void Entity::Draw(float dt)
@@ -131,6 +131,14 @@ void Entity::DuringCollision(Collider* c1, Collider* c2, collisionType type)
 		case TOP_COLLISION:
 			break;
 		case BOTTOM_COLLISION:
+			if (!onFloor)
+			{
+				Y_speed = 0;
+				position.y = c2->section.y - c1->section.h - collider_offset.y + 1;
+				onFloor = true;
+				if (state == FALLING)
+					state = IDLE;
+			}
 			break;
 		case LEFT_COLLISION:
 			X_speed = 0;
@@ -148,6 +156,4 @@ void Entity::OnEndCollision(Collider* c1, Collider* c2, collisionType type)
 {
 	if (c2->type == FLOOR_COLLIDER && type == BOTTOM_COLLISION)
 		onFloor = false;
-	if (type == LEFT_COLLISION)
-		LOG("A");
 }
