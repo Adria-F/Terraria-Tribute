@@ -22,6 +22,7 @@ class j1Gui;
 class j1EntityManager;
 class j1CollisionManager;
 class j1Map;
+class Light;
 
 class j1App
 {
@@ -101,6 +102,7 @@ public:
 	j1EntityManager*	entitymanager;
 	j1Map*				map;
 	j1CollisionManager* collisions;
+	Light*			lightEngine;
 
 	bool fpsCapON = true;
 	std::string			load_game;

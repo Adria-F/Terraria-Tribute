@@ -40,17 +40,20 @@ Player::~Player()
 
 void Player::Update()
 {
-	if (App->input->GetKey(SDL_SCANCODE_W) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT)
-	{
-		if (onFloor)
-			state = JUMPING;
-	}
+	
 
 	if (App->input->GetKey(SDL_SCANCODE_A) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_A) == KEY_REPEAT)
 	{
 		state = MOVING;
 		facing = LEFT;
+		
+		if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_REPEAT)
+		{
+			if (onFloor)
+				state = JUMPING;
+		}
 	}
+
 	else if (state == MOVING && facing == LEFT)
 		state = IDLE;
 
@@ -58,6 +61,12 @@ void Player::Update()
 	{
 		state = MOVING;
 		facing = RIGHT;
+		
+		if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_REPEAT)
+		{
+			if (onFloor)
+				state = JUMPING;
+		}
 	}
 	else if (state == MOVING && facing == RIGHT)
 		state = IDLE;

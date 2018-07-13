@@ -18,6 +18,7 @@
 #include "j1EntityManager.h"
 #include "j1CollisionManager.h"
 #include "j1Map.h"
+#include "j1Light.h"
 
 // Constructor
 j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
@@ -34,7 +35,8 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 	entitymanager		= new j1EntityManager();
 	gui					= new j1Gui();
 	map					= new j1Map();
-	collisions			 = new j1CollisionManager();
+	collisions			= new j1CollisionManager();
+	lightEngine			= new Light();
 	
 	// Ordered for awake / Start / Update
 	// Reverse order of CleanUp
@@ -48,6 +50,7 @@ j1App::j1App(int argc, char* args[]) : argc(argc), args(args)
 	AddModule(entitymanager);
 	AddModule(collisions);
 	AddModule(gui);
+	AddModule(lightEngine);
 	
 
 	// render last to swap buffer
