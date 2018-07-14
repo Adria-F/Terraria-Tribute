@@ -122,8 +122,8 @@ bool j1CollisionManager::PostUpdate(float dt)
 	{
 		for (std::list<Collider*>::iterator it_c = static_colliders.begin(); it_c != static_colliders.end(); it_c++)
 		{
-			Color color = { 0,0,255,155 };
-			App->render->DrawQuad((*it_c)->section, color);
+			Color color = { 0, 0, 255,155 };
+			App->render->DrawQuad((*it_c)->section, (*it_c)->color);
 		}
 	
 		for (std::list<Collider*>::iterator it_c = nonStatic_colliders.begin(); it_c != nonStatic_colliders.end(); it_c++)
@@ -244,6 +244,11 @@ Collider::Collider(SDL_Rect section, bool isStatic, j1Module* callback) : sectio
 {
 	if (!isStatic)
 		moveType = NON_STATIC;
+
+	float r = rand() % 255;
+	float g = rand() % 255;
+	float b = rand() % 255;
+	color = { r,g,b,155 };
 }
 
 void Collider::updatePosition(int x, int y, iPoint offset)

@@ -43,6 +43,9 @@ struct Collider
 
 	j1Module* callback = nullptr;
 
+	//TMP
+	Color color = { 0,0,255,155 };
+
 	void updatePosition(int x, int y, iPoint offset = { 0,0 });
 };
 
