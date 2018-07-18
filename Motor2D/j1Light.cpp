@@ -32,7 +32,7 @@ bool Light::Start() {
 
 bool Light::Update(float dt) {
 
-	if (Light_changer.Read() >= 1000) {
+	/*if (Light_changer.Read() >= 1000) {
 
 		if (light_state==NIGHT)
 		{
@@ -52,7 +52,7 @@ bool Light::Update(float dt) {
 			}
 		}
 		Light_changer.Start();
-	}
+	}*/
 
 
 	return true;

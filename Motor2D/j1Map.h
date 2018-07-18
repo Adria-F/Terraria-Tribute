@@ -25,6 +25,8 @@
 #define MIN_CAVE_SIZE {20, 15}
 #define CAVES_MIN_SEPARATION 10
 
+#define FRAME_TIME 15
+
 struct SDL_Texture;
 struct Collider;
 
@@ -37,6 +39,20 @@ enum blockType
 	STONE,
 
 	MAX_TYPE
+};
+
+enum generatingState
+{
+	TO_START_GENERATING = 0,
+
+	GENERATE_FLAT_MAP,
+	GENERATE_CAVES,
+	CLEAN_NOISE,
+	CLEAN_MAP,
+	CREATE_COLLIDERS,
+	CONNECT_BLOCKS,
+
+	GENERATION_COMPLETED
 };
 
 struct WorldData
@@ -138,6 +154,8 @@ public:
 
 	void fillPerlinList(std::vector<float>& perlinList, int maxValue = 1, int minValue = -1, int increment = 10, int tendenceMargin = 20);
 
+	void newGenerationState(generatingState newState);
+
 public:
 
 	std::vector<chunck*> chuncks;
@@ -152,6 +170,13 @@ private:
 
 	std::vector<float> grassPerlin;
 	std::vector<float> stonePerlin;
+
+	bool generatingMap = true;
+	generatingState state = TO_START_GENERATING;
+	int startFrameTime = 0;
+
+	int iterations = 0;
+	iPoint lastBlockOperated = { 0,0 };
 };
 
 #endif //__J1MAP_H__

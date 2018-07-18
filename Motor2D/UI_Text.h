@@ -12,13 +12,15 @@ class Text : public UI_Element
 {
 public:
 
-	Text(std::string text, int x, int y);
+	Text(std::string text, int x, int y, _TTF_Font* font);
 
 	~Text();
 
 	void createTexture();
 
-	void BlitElement();
+	void BlitElement(bool use_camera = false);
+
+	void setColor(SDL_Color color);
 
 public:
 

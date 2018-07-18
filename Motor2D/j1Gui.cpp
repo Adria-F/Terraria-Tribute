@@ -1,6 +1,7 @@
 #include "j1Gui.h"
 #include "UI_Element.h"
-#include "UI_TextBox.h"
+#include "UI_Text.h"
+#include "UI_LoadingScreen.h"
 #include "j1App.h"
 
 j1Gui::~j1Gui()
@@ -17,17 +18,20 @@ j1Gui::~j1Gui()
 
 bool j1Gui::Start()
 {
+	loadingScreen = new LoadingScreen();
 
 	return true;
 }
 
-bool j1Gui::Update(float dt)
+bool j1Gui::PostUpdate(float dt)
 {
 	for (std::list<UI_Element*>::iterator it_e = elements.begin(); it_e != elements.end(); it_e++)
 	{
 		if ((*it_e)->active)
 			(*it_e)->BlitElement();
 	}
+
+	loadingScreen->BlitElement();
 
 	return true;
 }
@@ -37,12 +41,12 @@ bool j1Gui::CleanUp()
 	return true;
 }
 
-TextBox* j1Gui::createTextBox(int x, int y)
+Text* j1Gui::createText(int x, int y, const char* text, _TTF_Font* font, bool addToElements)
 {
-	TextBox* ret = new TextBox(x, y, 0, 0);
-	elements.push_back(ret);
+	Text* ret = new Text(text, x, y, font);
 
-	ret->id = elements.size();
+	if (addToElements)
+		elements.push_back(ret);
 
 	return ret;
 }

@@ -33,6 +33,8 @@ public:
 	Entity* getEntity(int id) const;
 	Entity* getEntityByCollider(Collider* c) const;
 
+	void createPlayer(int x, int y);
+
 public:
 
 	std::list<Entity*> entities;

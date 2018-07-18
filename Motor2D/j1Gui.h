@@ -7,7 +7,10 @@
 #define DEFAULT_UI_SPEED 150
 
 class UI_Element;
-class TextBox;
+class Text;
+class LoadingScreen;
+
+struct _TTF_Font;
 
 class j1Gui : public j1Module
 {
@@ -20,17 +23,21 @@ public:
 	bool Start();
 
 	// Called each loop iteration
-	bool Update(float dt);
+	bool PostUpdate(float dt);
 
 	// Called before quitting
 	bool CleanUp();
 
-	TextBox* createTextBox(int x, int y);
+	Text* createText(int x, int y, const char* text, _TTF_Font* font, bool addToElements = true);
+	
 	UI_Element* getElement(int id);
 
 public:
 
 	std::list<UI_Element*> elements;
+
+	LoadingScreen* loadingScreen = nullptr;
+
 };
 
 #endif // __J1GUI_H__

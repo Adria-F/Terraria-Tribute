@@ -20,8 +20,6 @@ j1EntityManager::~j1EntityManager()
 
 bool j1EntityManager::Start()
 {
-	 Entity* player = new Player();
-	 entities.push_back(player);
 
 	return true;
 }
@@ -126,4 +124,11 @@ Entity* j1EntityManager::getEntityByCollider(Collider * c) const
 	}
 
 	return ret;
+}
+
+void j1EntityManager::createPlayer(int x, int y)
+{
+	Entity* player = new Player();
+	//player->position = { x, y };
+	entities.push_back(player);
 }

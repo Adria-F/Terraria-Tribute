@@ -35,12 +35,34 @@ bool j1Fonts::CleanUp()
 {
 	LOG("Freeing True Type fonts and library");
 
-	for (std::list<_TTF_Font*>::iterator it = fonts.begin(); it != fonts.end(); it++) 
-		TTF_CloseFont(*it);
+	for (std::map<FontData, _TTF_Font*>::iterator it = fonts.begin(); it != fonts.end(); it++) 
+		TTF_CloseFont((*it).second);
 
 	fonts.clear();
 	TTF_Quit();
 	return true;
+}
+
+_TTF_Font* const j1Fonts::getFont(const char* file, int size)
+{
+	TTF_Font* ret = nullptr;
+
+	const char* path = PATH(FONTS_FOLDER, file);
+
+	FontData fontData(path, size);
+	
+	if (fonts.count(fontData) > 0) //it exists
+	{
+		ret = fonts.at(fontData);
+	}
+	else //does noes exist
+	{
+		ret = Load(path, size);
+		if (ret != nullptr)
+			fonts.insert(std::pair<FontData, _TTF_Font*>(fontData, ret));
+	}
+
+	return ret;
 }
 
 // Load new texture from file path
@@ -48,8 +70,8 @@ TTF_Font* const j1Fonts::Load(const char* path, int size)
 {
 	TTF_Font* font = nullptr;
 
-	if(font = TTF_OpenFont(path, size)) fonts.push_back(font);
-	else	LOG("Could not load TTF font with path: %s. TTF_OpenFont: %s", path, TTF_GetError());
+	if(!(font = TTF_OpenFont(path, size)))
+		LOG("Could not load TTF font with path: %s. TTF_OpenFont: %s", path, TTF_GetError());
 
 	return font;
 }
@@ -80,13 +102,4 @@ bool j1Fonts::CalcSize(const char* text, int& width, int& height, _TTF_Font* fon
 	}
 
 	return true;
-}
-
-void j1Fonts::CloseFont(_TTF_Font * font)
-{
-	if (font)
-	{
-		TTF_CloseFont(font);
-		fonts.remove(font);
-	}
 }

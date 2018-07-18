@@ -4,12 +4,14 @@
 #include "j1Input.h"
 #include "j1Textures.h"
 #include "j1CollisionManager.h"
+#include "j1Gui.h"
+#include "UI_LoadingScreen.h"
+#include "j1EntityManager.h"
 #include <time.h>
 
 j1Map::j1Map()
 {
 }
-
 
 j1Map::~j1Map()
 {
@@ -31,19 +33,39 @@ bool j1Map::Start()
 	if (worldData)
 		loadWorldData(worldData.child("generationRules"));
 
-	generateMap();
-	App->ignoreFrameDelay();
-
 	return true;
 }
 
 bool j1Map::PreUpdate()
 {
-	if (App->input->GetKey(SDL_SCANCODE_G) == KEY_DOWN)
+	startFrameTime = App->getExecutionTime();
+
+	if (generatingMap)
 	{
-		LOG("------------ New Map ------------");
-		chuncks.clear();
-		generateMap();
+		switch (state)
+		{
+		case TO_START_GENERATING:
+			newGenerationState(GENERATE_FLAT_MAP);
+			break;
+		case GENERATE_FLAT_MAP:
+			generateFlatMap();
+			break;
+		case GENERATE_CAVES:
+			generateCaves(10);
+			break;
+		case CLEAN_NOISE:
+			cleanMapNoise(worldData.cleanMapIterations);
+			break;
+		case CLEAN_MAP:
+			cleanLonelyBlocks();
+			break;
+		case CREATE_COLLIDERS:
+			createColliders();
+			break;
+		case CONNECT_BLOCKS:
+			updateBlocksConnections();
+			break;
+		}
 	}
 
 	return true;
@@ -51,6 +73,9 @@ bool j1Map::PreUpdate()
 
 bool j1Map::Update(float dt)
 {
+	if (generatingMap)
+		return true;
+
 	App->render->DrawQuad({ 0,0, worldData.world_width*BLOCK_SIZE, worldData.world_height*BLOCK_SIZE }, Cyan);
 
 	int chunck_counter = 0;
@@ -120,25 +145,17 @@ void j1Map::loadWorldData(pugi::xml_node data)
 	worldData.cleanMapIterations = data.child("cleanMapIterations").attribute("value").as_int();
 }
 
-void j1Map::generateMap()
-{
-	BROFILER_CATEGORY("Generate Map", Profiler::Color::DarkGreen);
-
-	generateFlatMap();
-	generateCaves(10);
-	cleanMapNoise(worldData.cleanMapIterations);
-	cleanLonelyBlocks();
-	createColliders();
-
-	updateBlocksConnections();
-}
-
 void j1Map::generateFlatMap()
 {
 	fillPerlinList(grassPerlin);
 	fillPerlinList(stonePerlin, 1, 0);
-	while (chuncks.size() * CHUNCK_WIDTH < worldData.world_width && (chuncks.size() < CHUNCKS_LOADED || CHUNCKS_LOADED == 0))
+	while (App->getExecutionTime() - startFrameTime < FRAME_TIME)
 	{
+		if (chuncks.size() * CHUNCK_WIDTH >= worldData.world_width || (chuncks.size() >= CHUNCKS_LOADED && CHUNCKS_LOADED != 0))
+		{
+			newGenerationState(GENERATE_CAVES);
+			break;
+		}
 		chunck* curr_chunck = new chunck();
 		for (int i = 0; i < CHUNCK_WIDTH; i++)
 		{
@@ -232,6 +249,8 @@ void j1Map::createColliders()
 			}
 		}
 	}
+
+	newGenerationState(CONNECT_BLOCKS);
 }
 
 void j1Map::generateCaves(int amount)
@@ -240,9 +259,14 @@ void j1Map::generateCaves(int amount)
 		
 	std::vector<SDL_Rect> caveList;
 
-	int times = 0;
-	while (times < amount)
+	while (App->getExecutionTime() - startFrameTime < FRAME_TIME)
 	{
+		if (iterations >= amount)
+		{
+			newGenerationState(CLEAN_NOISE);
+			iterations = 0;
+			break;
+		}
 		int caveX = rand() % worldData.world_width;
 		int caveY = rand() % (worldData.world_height - worldData.groundStartHeight + 1) + worldData.groundStartHeight;
 		int caveW = rand() % (worldData.maxCaveSize.x - worldData.minCaveSize.x + 1) + worldData.minCaveSize.x;
@@ -261,7 +285,7 @@ void j1Map::generateCaves(int amount)
 
 		caveList.push_back(cave);
 		fillCaveMap(cave);
-		times++;
+		iterations++;
 	}
 }
 
@@ -336,17 +360,28 @@ void j1Map::fillCaveMap(SDL_Rect area)
 
 void j1Map::cleanMapNoise(int iterations)
 {
-	int times = 0;
-	while (times < iterations)
+	while (App->getExecutionTime() - startFrameTime < FRAME_TIME)
 	{
-		for (int i = 0; i < worldData.world_width; i++)
+		if (this->iterations >= iterations)
 		{
-			for (int j = 0; j < worldData.world_height; j++)
-			{
-				convertBlockIntoNeighbors(i, j);
-			}
+			newGenerationState(CLEAN_MAP);
+			this->iterations = 0;
+			lastBlockOperated = { 0,0 };
+			break;
 		}
-		times++;
+
+		convertBlockIntoNeighbors(lastBlockOperated.x, lastBlockOperated.y);
+		lastBlockOperated.y++;
+		if (lastBlockOperated.y >= worldData.world_height)
+		{
+			lastBlockOperated.y = 0;
+			lastBlockOperated.x++;
+		}
+		if (lastBlockOperated.x >= worldData.world_width)
+		{
+			lastBlockOperated.x = 0;
+			this->iterations++;
+		}
 	}
 }
 
@@ -407,21 +442,31 @@ bool j1Map::collidingWithList(SDL_Rect rect, std::vector<SDL_Rect> list, int mar
 //NEEDS OPTIMIZATION | Currently checking for all possible blocks surrounding
 void j1Map::cleanLonelyBlocks()
 {
-	for (int i = 0; i < chuncks.size(); i++)
+	while (App->getExecutionTime() - startFrameTime < FRAME_TIME)
 	{
-		for (int j = 0; j < chuncks[i]->blocks.size(); j++)
+		block* block = chuncks[lastBlockOperated.x]->blocks[lastBlockOperated.y];
+		for (int i = 0; i < MAX_TYPE; i++)
 		{
-			block* block = chuncks[i]->blocks[j];
-			for (int i = 0; i < MAX_TYPE; i++)
-			{
-				if (block->getNeighborsType((blockType)i) == 4)
-					setBlock(block, (blockType)i);
-			}
-			/*if (block->type == AIR && block->collider != nullptr)
-			{
-				App->collisions->removeCollider(block->collider);
-				block->collider = nullptr;
-			}*/
+			if (block->getNeighborsType((blockType)i) == 4)
+				setBlock(block, (blockType)i);
+		}
+		/*if (block->type == AIR && block->collider != nullptr)
+		{
+			App->collisions->removeCollider(block->collider);
+			block->collider = nullptr;
+		}*/
+
+		lastBlockOperated.y++;
+		if (lastBlockOperated.y >= chuncks[lastBlockOperated.x]->blocks.size())
+		{
+			lastBlockOperated.y = 0;
+			lastBlockOperated.x++;
+		}
+		if (lastBlockOperated.x >= chuncks.size())
+		{
+			lastBlockOperated.x = 0;
+			newGenerationState(CREATE_COLLIDERS);
+			break;
 		}
 	}
 }
@@ -435,6 +480,8 @@ void j1Map::updateBlocksConnections()
 			chuncks[i]->blocks[j]->updateSection();
 		}
 	}
+
+	newGenerationState(GENERATION_COMPLETED);
 }
 
 SDL_Rect j1Map::getSectionFromBlockConnections(std::vector<bool> connections)
@@ -609,6 +656,37 @@ void j1Map::fillPerlinList(std::vector<float>& perlinList, int maxValue, int min
 		}
 		previousPerlin = newPerlin;
 		perlinList.push_back(previousPerlin);
+	}
+}
+
+void j1Map::newGenerationState(generatingState newState)
+{
+	state = newState;
+
+	switch (state)
+	{
+	case GENERATE_FLAT_MAP:
+		App->gui->loadingScreen->loadingMessage("Generating basic map");
+		break;
+	case GENERATE_CAVES:
+		App->gui->loadingScreen->loadingMessage("Generating caves");
+		break;
+	case CLEAN_NOISE:
+		App->gui->loadingScreen->loadingMessage("Cleaning map noise");
+		break;
+	case CLEAN_MAP:
+		break;
+	case CREATE_COLLIDERS:
+		App->gui->loadingScreen->loadingMessage("Creating colliders");
+		break;
+	case CONNECT_BLOCKS:
+		App->gui->loadingScreen->loadingMessage("Connecting Blocks");
+		break;
+	case GENERATION_COMPLETED:
+		generatingMap = false;
+		App->gui->loadingScreen->endLoadingScreen();
+		App->entitymanager->createPlayer(0, 300);
+		break;
 	}
 }
 

@@ -64,6 +64,8 @@ public:
 
 	void ignoreFrameDelay();
 
+	double getExecutionTime() const;
+
 	// Load config file
 	pugi::xml_node LoadConfig(pugi::xml_document&, char* file = "config.xml") const;
 

@@ -3,14 +3,29 @@
 
 #include "j1Module.h"
 #include <list>
+#include <map>
 
 #define DEFAULT_FONT "fonts/BebasNeue-Regular.ttf"
 #define DEFAULT_FONT_SIZE 18
-#define FONTS_FOLDER "fonts/"
+#define FONTS_FOLDER "fonts"
 
 struct SDL_Texture;
 struct SDL_Color;
 struct _TTF_Font;
+
+struct FontData
+{
+	FontData(const char* path, int size): path(path), size(size)
+	{}
+
+	std::string path = "";
+	int size = 12;
+
+	bool operator<(const FontData& other) const
+	{
+		return (this->size < other.size);
+	}
+};
 
 class j1Fonts : public j1Module
 {
@@ -27,6 +42,8 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+	_TTF_Font* const getFont(const char* file, int size);
+
 	// Load Font
 	_TTF_Font* const Load(const char* path, int size = 12);
 
@@ -35,11 +52,9 @@ public:
 
 	bool CalcSize(const char* text, int& width, int& height, _TTF_Font* font = NULL) const;
 
-	void CloseFont(_TTF_Font* font);
-
 public:
 
-	std::list<_TTF_Font*>	fonts;
+	std::map<FontData, _TTF_Font*> fonts;
 	_TTF_Font*				default_font = nullptr;
 };
 

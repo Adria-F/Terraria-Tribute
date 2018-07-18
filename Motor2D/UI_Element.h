@@ -13,10 +13,14 @@ public:
 	~UI_Element()
 	{}
 
-	virtual void BlitElement()
+	virtual void BlitElement(bool use_camera = false)
 	{}
 
 	iPoint getGlobalPosition();
+
+	void appendChild(UI_Element * child, bool center = false);
+
+	void BlitChilds(bool use_camera = false);
 
 public:
 
@@ -25,6 +29,8 @@ public:
 
 	fPoint local_position = { 0.0f,0.0f };
 	SDL_Rect section = { 0,0,0,0 };
+
+	std::list<UI_Element*> childs;
 
 	int id = 0;
 };

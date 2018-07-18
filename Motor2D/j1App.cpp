@@ -364,6 +364,11 @@ void j1App::ignoreFrameDelay()
 	frame_time.Start();
 }
 
+double j1App::getExecutionTime() const
+{
+	return ptimer.ReadMs();
+}
+
 
 
 

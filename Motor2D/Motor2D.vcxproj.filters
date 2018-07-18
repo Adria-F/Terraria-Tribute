@@ -73,6 +73,9 @@
     <ClCompile Include="j1Light.cpp">
       <Filter>Desenvolupament  ========\Modules</Filter>
     </ClCompile>
+    <ClCompile Include="UI_LoadingScreen.cpp">
+      <Filter>Desenvolupament  ========\UI_elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="j1Window.h">
@@ -158,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="j1Light.h">
       <Filter>Desenvolupament  ========\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_LoadingScreen.h">
+      <Filter>Desenvolupament  ========\UI_elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

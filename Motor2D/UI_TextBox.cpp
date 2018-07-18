@@ -29,7 +29,7 @@ void TextBox::BlitElement()
 
 void TextBox::addTextLine(std::string text)
 {
-	Text* line = new Text(text, BOX_MARGIN, BOX_MARGIN + getLinesHeight());
+	Text* line = new Text(text, BOX_MARGIN, BOX_MARGIN + getLinesHeight(), App->font->getFont("BebasNeue-Regular.ttf", 30));
 	line->parent = this;
 
 	textLines.push_back(line);
