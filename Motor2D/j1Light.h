@@ -5,7 +5,11 @@
 #include "Color.h"
 #include "j1Timer.h"
 
+#include <list>
+
 #include "SDL/include/SDL.h"
+
+using namespace std;
 
 struct SDL_Rect;
 
@@ -38,6 +42,8 @@ public:
 public:
 
 	SDL_Rect light_screen = {0, 0, 0, 0};
+
+	list<SDL_Rect*> screen_rects;
 
 	Color light;
 

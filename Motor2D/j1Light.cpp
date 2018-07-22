@@ -27,12 +27,20 @@ bool Light::Start() {
 
 	Light_changer.Start();
 
+	for (int i = 0; i <= App->render->camera.w/16; i++)
+	{
+		for (int j = 0; j <= App->render->camera.h/16; j++)
+		{
+			screen_rects.push_back(new SDL_Rect({ i*16, j*16, 16, 16 }));
+		}
+	}
+
 	return true;
 }
 
 bool Light::Update(float dt) {
 
-	/*if (Light_changer.Read() >= 1000) {
+	/*if (Light_changer.Read() >= 10) {
 
 		if (light_state==NIGHT)
 		{
@@ -58,9 +66,14 @@ bool Light::Update(float dt) {
 	return true;
 }
 
-bool Light::PostUpdate(float dt) {
+bool Light::PostUpdate(float dt) 
+{
 
-	App->render->DrawQuad(light_screen, light, true, false);
+	for (list<SDL_Rect*>::iterator it = screen_rects.begin(); it != screen_rects.end(); it++)
+	{
+		SDL_Rect aux_rect = { (*it)->x,(*it)->y,(*it)->w,(*it)->h };
+		App->render->DrawQuad(aux_rect, light, true, false);
+	}
 
 	return true;
 }
