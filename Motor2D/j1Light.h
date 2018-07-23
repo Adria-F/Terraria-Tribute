@@ -4,6 +4,7 @@
 #include "j1Module.h"
 #include "Color.h"
 #include "j1Timer.h"
+#include "p2Point.h"
 
 #include <list>
 
@@ -19,6 +20,21 @@ enum Light_State{
 	DAY,
 	NIGHT,
 	LIGHT_OBJECT,
+
+};
+
+struct LightNode {
+
+	LightNode(int x, int y, int w, int h, float r, float g, float b, float alpha)
+	{
+		Source = new SDL_Rect({ x,y,w,h });
+		lColor = new Color({ r,g,b,alpha });
+		type = NONE;
+	}
+
+	SDL_Rect* Source;
+	Color* lColor;
+	Light_State type;
 
 };
 
@@ -39,17 +55,21 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+	int DayNight();
+
 public:
 
 	SDL_Rect light_screen = {0, 0, 0, 0};
 
-	list<SDL_Rect*> screen_rects;
+	list<LightNode*> screen_rects;
 
 	Color light;
 
 	Light_State light_state;
 
 	j1Timer Light_changer;
+
+	SDL_Point mouse;
 
 };
 

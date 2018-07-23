@@ -1,8 +1,11 @@
 #include "j1Light.h"
 #include "j1App.h"
 #include "j1Render.h"
+#include "j1Input.h"
 #include "Color.h"
 
+#include <time.h>
+#include <stdlib.h>
 
 Light::Light() : j1Module()
 {
@@ -16,33 +19,64 @@ Light::~Light()
 
 bool Light::Start() {
 
-	light_screen.x = App->render->camera.x;
-	light_screen.y = App->render->camera.y;
-	light_screen.h = App->render->camera.h;
-	light_screen.w = App->render->camera.w;
-
-	light = { 0,0,0,0 };
+	Light_changer.Start();
 
 	light_state = DAY;
 
-	Light_changer.Start();
-
-	for (int i = 0; i <= App->render->camera.w/16; i++)
+	for (int i = 0; i <= App->render->camera.w/32; i++)
 	{
-		for (int j = 0; j <= App->render->camera.h/16; j++)
+		for (int j = 0; j <= App->render->camera.h/32; j++)
 		{
-			screen_rects.push_back(new SDL_Rect({ i*16, j*16, 16, 16 }));
+			screen_rects.push_back(new LightNode( i*32, j*32, 32, 32,0,0,0,0));
 		}
 	}
 
 	return true;
 }
 
-bool Light::Update(float dt) {
+bool Light::Update(float dt) 
+{
 
-	/*if (Light_changer.Read() >= 10) {
+	DayNight();
 
-		if (light_state==NIGHT)
+	App->input->GetMousePosition(mouse.x, mouse.y);	
+
+	for (list<LightNode*>::iterator it = screen_rects.begin(); it != screen_rects.end(); it++)
+	{
+		if (SDL_PointInRect(&mouse, (*it)->Source))
+		{
+			(*it)->lColor->a = 0;
+		}
+		else
+		{
+			*(*it)->lColor = light;
+		}
+	}
+
+
+	return true;
+}
+
+bool Light::PostUpdate(float dt) 
+{
+	for (list<LightNode*>::iterator it = screen_rects.begin(); it != screen_rects.end(); it++)
+	{
+		App->render->DrawQuad(*(*it)->Source, *(*it)->lColor, true, false);
+	}
+
+	return true;
+}
+
+bool Light::CleanUp(){
+	return true;
+
+}
+
+int Light::DayNight()
+{
+	if (Light_changer.Read() >= 100) {
+
+		if (light_state == NIGHT)
 		{
 			light.a++;
 			if (light.a >= 200)
@@ -50,7 +84,7 @@ bool Light::Update(float dt) {
 				light_state = DAY;
 			}
 		}
-		
+
 		if (light_state == DAY)
 		{
 			light.a--;
@@ -60,25 +94,7 @@ bool Light::Update(float dt) {
 			}
 		}
 		Light_changer.Start();
-	}*/
-
-
-	return true;
-}
-
-bool Light::PostUpdate(float dt) 
-{
-
-	for (list<SDL_Rect*>::iterator it = screen_rects.begin(); it != screen_rects.end(); it++)
-	{
-		SDL_Rect aux_rect = { (*it)->x,(*it)->y,(*it)->w,(*it)->h };
-		App->render->DrawQuad(aux_rect, light, true, false);
 	}
 
-	return true;
-}
-
-bool Light::CleanUp(){
-	return true;
-
+	return 0;
 }
