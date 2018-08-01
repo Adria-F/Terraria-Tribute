@@ -35,6 +35,7 @@ struct LightNode {
 	SDL_Rect* Source;
 	Color* lColor;
 	Light_State type;
+	bool isLight = false;
 
 };
 
@@ -62,6 +63,7 @@ public:
 	SDL_Rect light_screen = {0, 0, 0, 0};
 
 	list<LightNode*> screen_rects;
+	list<LightNode*> all_Lights;
 
 	Color light;
 
@@ -70,6 +72,8 @@ public:
 	j1Timer Light_changer;
 
 	SDL_Point mouse;
+
+	fPoint test_mouse;
 
 };
 
