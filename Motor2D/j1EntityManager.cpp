@@ -4,7 +4,9 @@
 #include "j1Input.h"
 #include "Entity.h"
 #include "Player.h"
+#include "fallingBlock.h"
 #include "j1CollisionManager.h"
+#include "j1Map.h"
 
 j1EntityManager::~j1EntityManager()
 {
@@ -44,6 +46,12 @@ bool j1EntityManager::PostUpdate(float dt)
 {
 	for (std::list<Entity*>::iterator it_e = entities.begin(); it_e != entities.end(); it_e++)
 	{
+		if ((*it_e)->to_delete)
+		{
+			destroyEntity((*it_e));
+			continue;
+		}
+
 		if ((*it_e)->active)
 		{
 			//CAMERA CULLING
@@ -126,9 +134,26 @@ Entity* j1EntityManager::getEntityByCollider(Collider * c) const
 	return ret;
 }
 
+void j1EntityManager::destroyEntity(Entity* entity)
+{
+	entities.remove(entity);
+	RELEASE(entity);
+}
+
 void j1EntityManager::createPlayer(int x, int y)
 {
 	Entity* player = new Player();
 	//player->position = { x, y };
 	entities.push_back(player);
+}
+
+Entity* j1EntityManager::createFallingBlock(block* Block)
+{
+	iPoint newEntityPos = App->map->MapToWorld(Block->position);
+
+	Entity* ret = new fallingBlock(newEntityPos.x, newEntityPos.y, Block);
+
+	entities.push_back(ret);
+
+	return ret;
 }

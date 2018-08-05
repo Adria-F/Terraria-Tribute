@@ -27,16 +27,23 @@
 
 #define FRAME_TIME 15
 
+#define FIRST_FALLING_BLOCK 20
+
 struct SDL_Texture;
 struct Collider;
+struct Entity;
 
 enum blockType
 {
 	AIR = 0,
 
+	//STATICS
 	GRASS,
 	DIRT,
 	STONE,
+
+	//FALLING
+	SAND = FIRST_FALLING_BLOCK,
 
 	MAX_TYPE
 };
@@ -48,6 +55,7 @@ enum generatingState
 	GENERATE_FLAT_MAP,
 	GENERATE_CAVES,
 	CLEAN_NOISE,
+	GENERATE_BIOMES,
 	CLEAN_MAP,
 	CREATE_COLLIDERS,
 	CONNECT_BLOCKS,
@@ -78,9 +86,12 @@ struct block
 	SDL_Rect section = { 0,0,16,16 };
 	Collider* collider = nullptr;
 
+	bool falling_block = false;
+
 	int getNeighborsType(blockType type);
 	std::vector<block*> getNeighbors();
 	void updateSection();
+	void createCollider();
 };
 
 struct chunck
@@ -122,6 +133,8 @@ public:
 	bool collidingWithList(SDL_Rect rect, std::vector<SDL_Rect> list, int margin = 0);
 	void fillCaveMap(SDL_Rect area);
 
+	void generateBiomes();
+
 	void cleanMapNoise(int iterations = 1);
 	void convertBlockIntoNeighbors(int x, int y);
 	blockType moreRepeatedNeighbor(block* Block);
@@ -141,6 +154,8 @@ public:
 	void setBlock(int x, int y, blockType type);
 	//Enter the block in order to avoid looking for it
 	void setBlock(block* Block, blockType type);
+
+	void convertIntoFallingBlock(block* Block);
 
 	SDL_Texture* getBlockTexture(blockType type);
 

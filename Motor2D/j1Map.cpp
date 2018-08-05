@@ -7,6 +7,7 @@
 #include "j1Gui.h"
 #include "UI_LoadingScreen.h"
 #include "j1EntityManager.h"
+#include "Entity.h"
 #include <time.h>
 
 j1Map::j1Map()
@@ -56,6 +57,9 @@ bool j1Map::PreUpdate()
 		case CLEAN_NOISE:
 			cleanMapNoise(worldData.cleanMapIterations);
 			break;
+		case GENERATE_BIOMES:
+			generateBiomes();
+			break;
 		case CLEAN_MAP:
 			cleanLonelyBlocks();
 			break;
@@ -102,7 +106,9 @@ bool j1Map::Update(float dt)
 				color = { 150, 150, 150, 255 }; //Gray
 
 			if ((App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_DOWN || App->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT) && App->input->collidingMouse({ pos.x, pos.y, BLOCK_SIZE, BLOCK_SIZE }, true))
+			{
 				removeBlock(block);
+			}
 
 			if (false)
 			{
@@ -192,61 +198,12 @@ void j1Map::createColliders()
 		for (int i = 0; i < worldData.world_width; i++)
 		{
 			block* currBlock = getBlockAt(i, j);
-			if (currBlock == nullptr || currBlock->collider != nullptr)
+			if (currBlock == nullptr || currBlock->collider != nullptr || currBlock->type == AIR || currBlock->getNeighborsType(AIR) == 0)
 				continue;
 
-			if (currBlock->type != AIR && !(firstFound && currBlock->position.x < firstBlock))
-			{
-				if (!firstFound)
-				{
-					firstBlock = lastBlock = currBlock->position.x;
-					currY = currBlock->position.y;
-					
-					iPoint worldPos = MapToWorld({ currBlock->position.x, currBlock->position.y });
-					currCollider = App->collisions->AddCollider(worldPos.x, worldPos.y, currBlock->section.w, currBlock->section.h, FLOOR_COLLIDER, true);
-					currBlock->collider = currCollider;
-					
-					firstFound = true;
-				}
-				else
-				{
-					lastBlock++;
-					currCollider->section.w += currBlock->section.w;
-					currBlock->collider = currCollider;
-				}
-			}
-			else if (firstFound)
-			{
-				bool continueBelow = false;
-				while (continueBelow)
-				{
-					currY++;
-					for (int k = firstBlock; k <= lastBlock; k++)
-					{
-						block* Block = getBlockAt(k, currY);
-						if (Block == nullptr || Block->type == AIR)
-						{
-							continueBelow = false;
-							break;
-						}
-					}
-					if (continueBelow)
-					{
-						currCollider->section.h += BLOCK_SIZE;
-						for (int k = firstBlock; k <= lastBlock; k++)
-						{
-							block* Block = getBlockAt(k, currY);
-							Block->collider = currCollider;
-
-						}
-					}
-
-				}
-
-				firstFound = false;
-
-				currCollider = nullptr;
-			}
+			iPoint worldPos = MapToWorld({ currBlock->position.x, currBlock->position.y });
+			currCollider = App->collisions->AddCollider(worldPos.x, worldPos.y, currBlock->section.w, currBlock->section.h, FLOOR_COLLIDER, true);
+			currBlock->collider = currCollider;
 		}
 	}
 
@@ -358,13 +315,56 @@ void j1Map::fillCaveMap(SDL_Rect area)
 	}
 }
 
+void j1Map::generateBiomes()
+{
+	//Select an X to spawn the biome
+	bool spawn = false;
+	int x = 0;
+	while (!spawn)
+	{
+		bool spawn = (rand() % 100 < 2);
+		if (spawn)
+			break;
+
+		x++;
+		if (x > worldData.world_width)
+			x = 0;
+	}
+
+	int y = 0;
+	block* Block = getBlockAt(x, y);
+	while (Block->type == AIR)
+	{
+		y++;
+		Block = getBlockAt(x, y);	//Need to check if returns nullptr
+	}
+
+	//BIOME SIZE
+	int W = 50;
+	int H = 50;
+
+	for (int i = x - W / 2; i < x + W / 2; i++)
+	{
+		for (int j = y - H / 2; j < y + H / 2; j++)
+		{
+			block* Block2 = getBlockAt(i, j);
+			if (Block2 != nullptr && Block2->type != AIR && Block2->position.DistanceTo(Block->position) <= 23)
+			{
+				setBlock(Block2, SAND);
+			}
+		}
+	}
+
+	newGenerationState(CREATE_COLLIDERS);
+}
+
 void j1Map::cleanMapNoise(int iterations)
 {
 	while (App->getExecutionTime() - startFrameTime < FRAME_TIME)
 	{
 		if (this->iterations >= iterations)
 		{
-			newGenerationState(CLEAN_MAP);
+			newGenerationState(GENERATE_BIOMES);
 			this->iterations = 0;
 			lastBlockOperated = { 0,0 };
 			break;
@@ -509,19 +509,7 @@ void j1Map::removeBlock(int x, int y)
 {
 	block* Block = getBlockAt(x, y);
 	if (Block != nullptr)
-	{
-		Block->type = AIR;
-
-		if (Block->collider != nullptr)
-		{
-			App->collisions->removeCollider(Block->collider); //It will change when blocks can be placed
-			Block->collider = nullptr;
-		}
-
-		std::vector<block*> neighbors = Block->getNeighbors();
-		for (int i = 0; i < neighbors.size(); i++)
-			neighbors[i]->updateSection();
-	}
+		removeBlock(Block);
 }
 
 void j1Map::removeBlock(block* Block, bool updateSurroundings)
@@ -537,7 +525,14 @@ void j1Map::removeBlock(block* Block, bool updateSurroundings)
 	{
 		std::vector<block*> neighbors = Block->getNeighbors();
 		for (int i = 0; i < neighbors.size(); i++)
+		{
 			neighbors[i]->updateSection();
+			neighbors[i]->createCollider();
+		}
+
+		block* N_neighbor = getBlockAt(Block->position.x, Block->position.y - 1);
+		if (N_neighbor != nullptr && N_neighbor->type != AIR && N_neighbor->falling_block)
+			convertIntoFallingBlock(N_neighbor);
 	}
 }
 
@@ -545,12 +540,42 @@ void j1Map::setBlock(int x, int y, blockType type)
 {
 	block* Block = getBlockAt(x, y);
 	if (Block != nullptr)
-		Block->type = type;
+		setBlock(Block, type);
 }
 
 void j1Map::setBlock(block* Block, blockType type)
 {
+	blockType previousType = Block->type;
+
 	Block->type = type;
+	if (type >= FIRST_FALLING_BLOCK)
+		Block->falling_block = true;
+	else
+		Block->falling_block = false;
+
+	if (previousType == AIR && type != AIR)
+	{
+		Block->createCollider();
+
+		Block->updateSection();
+		std::vector<block*> neighbors = Block->getNeighbors();
+		for (int i = 0; i < neighbors.size(); i++)
+		{
+			neighbors[i]->updateSection();
+			if (neighbors[i]->getNeighborsType(AIR) == 0 && neighbors[i]->collider != nullptr)
+			{
+				App->collisions->removeCollider(neighbors[i]->collider);
+				neighbors[i]->collider = nullptr;
+			}
+
+		}
+	}
+}
+
+void j1Map::convertIntoFallingBlock(block* Block)
+{
+	App->entitymanager->createFallingBlock(Block);
+	removeBlock(Block);
 }
 
 SDL_Texture* j1Map::getBlockTexture(blockType type)
@@ -672,9 +697,13 @@ void j1Map::newGenerationState(generatingState newState)
 		App->gui->loadingScreen->loadingMessage("Generating caves");
 		break;
 	case CLEAN_NOISE:
-		App->gui->loadingScreen->loadingMessage("Cleaning map noise");
+		App->gui->loadingScreen->loadingMessage("Cleaning caves noise");
+		break;
+	case GENERATE_BIOMES:
+		App->gui->loadingScreen->loadingMessage("Generating Biomes");
 		break;
 	case CLEAN_MAP:
+		App->gui->loadingScreen->loadingMessage("Cleaning map noise");
 		break;
 	case CREATE_COLLIDERS:
 		App->gui->loadingScreen->loadingMessage("Creating colliders");
@@ -746,4 +775,15 @@ void block::updateSection()
 	connections.push_back(west);
 
 	section = App->map->getSectionFromBlockConnections(connections);	
+}
+
+void block::createCollider()
+{
+	if (collider == nullptr && type != AIR)
+	{
+		iPoint worldPos = App->map->MapToWorld({ position.x, position.y });
+		collider = App->collisions->AddCollider(worldPos.x, worldPos.y, section.w, section.h, FLOOR_COLLIDER, true);
+	}
+	else
+		LOG("This block already has a collider or it is AIR");
 }

@@ -1,7 +1,11 @@
 <textures>
+	<!-- STATICS -->
 	<texture blockID="1" path="maps/Tiles_2.png"/>
 	<texture blockID="2" path="maps/Tiles_0.png"/>
 	<texture blockID="3" path="maps/Tiles_1.png"/>
+	
+	<!-- FALLING -->
+	<texture blockID="20" path="maps/Tiles_3.png"/>
 </textures>
 
 <connections>

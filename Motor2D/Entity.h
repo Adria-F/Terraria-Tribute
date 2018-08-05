@@ -16,6 +16,7 @@ enum entity_type
 	NO_ENTITY = 0,
 
 	PLAYER,
+	FALLING_BLOCK,
 	ENEMY
 };
 
@@ -40,8 +41,7 @@ class Entity
 {
 public:
 	Entity(float x, float y, int w, int h, entity_type type);
-	~Entity()
-	{}
+	~Entity();
 
 	virtual void Update() //Calculate movement of the frame
 	{}
@@ -49,9 +49,9 @@ public:
 	bool physicsUpdate(float dt); //Do the movement
 
 	//Check collisions and act accordingly
-	void OnCollision(Collider* c1, Collider* c2, collisionType type); 
-	void DuringCollision(Collider* c1, Collider* c2, collisionType type);
-	void OnEndCollision(Collider* c1, Collider* c2, collisionType type);
+	virtual void OnCollision(Collider* c1, Collider* c2, collisionType type); 
+	virtual void DuringCollision(Collider* c1, Collider* c2, collisionType type);
+	virtual void OnEndCollision(Collider* c1, Collider* c2, collisionType type);
 
 	virtual void Draw(float dt); //Draw the correct position
 
@@ -79,7 +79,7 @@ public:
 	float maxXSpeed = 200.0f;
 	float maxYSpeed = 500.0f;
 
-	
+	bool to_delete = false;
 };
 
 #endif // __ENTITY_H__

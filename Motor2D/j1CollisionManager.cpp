@@ -109,6 +109,10 @@ bool j1CollisionManager::Update(float dt)
 						onGoingCollisions.erase(onGoingCollisions.begin() + collisionExists); //Remove it from the existing collisions
 					}
 				}
+				else
+				{
+					LOG("This block has no collider!");
+				}
 			}
 		}
 	}

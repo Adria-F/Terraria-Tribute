@@ -78,6 +78,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="fallingBlock.cpp" />
     <ClCompile Include="j1CollisionManager.cpp" />
     <ClCompile Include="j1EntityManager.cpp" />
     <ClCompile Include="j1Fonts.cpp" />
@@ -106,6 +107,7 @@
   <ItemGroup>
     <ClInclude Include="Color.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="fallingBlock.h" />
     <ClInclude Include="j1CollisionManager.h" />
     <ClInclude Include="j1EntityManager.h" />
     <ClInclude Include="j1Fonts.h" />

@@ -76,6 +76,9 @@
     <ClCompile Include="UI_LoadingScreen.cpp">
       <Filter>Desenvolupament  ========\UI_elements</Filter>
     </ClCompile>
+    <ClCompile Include="fallingBlock.cpp">
+      <Filter>Desenvolupament  ========\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="j1Window.h">
@@ -164,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="UI_LoadingScreen.h">
       <Filter>Desenvolupament  ========\UI_elements</Filter>
+    </ClInclude>
+    <ClInclude Include="fallingBlock.h">
+      <Filter>Desenvolupament  ========\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

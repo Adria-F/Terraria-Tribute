@@ -8,6 +8,12 @@ Entity::Entity(float x, float y, int w, int h, entity_type type) : position({ x,
 	collider = App->collisions->AddCollider(x, y, section.w, section.h, NO_COLLIDER, false, (j1Module*)App->entitymanager);
 }
 
+Entity::~Entity()
+{
+	if (collider != nullptr)
+		App->collisions->removeCollider(collider);
+}
+
 void Entity::Draw(float dt)
 {
 	Color usingColor = White;

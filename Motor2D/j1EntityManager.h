@@ -7,6 +7,7 @@
 #define DEFAULT_ENTITY_SPEED 150
 
 class Entity;
+struct block;
 
 class j1EntityManager : public j1Module
 {
@@ -33,7 +34,11 @@ public:
 	Entity* getEntity(int id) const;
 	Entity* getEntityByCollider(Collider* c) const;
 
+	void destroyEntity(Entity* entity);
+
 	void createPlayer(int x, int y);
+
+	Entity* createFallingBlock(block* Block);
 
 public:
 
