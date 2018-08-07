@@ -86,6 +86,9 @@ struct block
 	SDL_Rect section = { 0,0,16,16 };
 	Collider* collider = nullptr;
 
+	SDL_Rect* Source;
+	Color* lColor;
+
 	bool falling_block = false;
 
 	int getNeighborsType(blockType type);

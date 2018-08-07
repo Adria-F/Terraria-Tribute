@@ -5,6 +5,7 @@
 #include "j1Textures.h"
 #include "j1CollisionManager.h"
 #include "j1Gui.h"
+#include "j1Light.h"
 #include "UI_LoadingScreen.h"
 #include "j1EntityManager.h"
 #include "Entity.h"
@@ -90,15 +91,28 @@ bool j1Map::Update(float dt)
 	lastBlock.x += 1;
 	lastBlock.y += 1;
 
+	int alpha= App->lightEngine->DayNight();
+
 	for (int i = firstBlock.x; i < lastBlock.x; i++)
 	{
 		for (int j = firstBlock.y; j < lastBlock.y; j++)
 		{
 			block* block = getBlockAt(i, j);
-			if (block == nullptr || block->type == AIR)
+
+			if (block == nullptr)
+			{
 				continue;
+			}
 
 			iPoint pos = MapToWorld(block->position);
+			block->lColor->a = alpha;
+
+			if (block->type == AIR)
+			{
+				App->render->DrawQuad({ pos.x , pos.y, BLOCK_SIZE, BLOCK_SIZE }, *(block->lColor));
+				continue;
+			}
+
 			Color color = { 150, 90, 60, 255 }; //Brown
 			if (block->type == GRASS)
 				color = { 0, 230, 0, 255 }; //Green
@@ -118,6 +132,7 @@ bool j1Map::Update(float dt)
 			else
 			{
 				App->render->Blit(getBlockTexture(block->type), pos.x, pos.y, &block->section);
+				App->render->DrawQuad({ pos.x, pos.y, BLOCK_SIZE, BLOCK_SIZE}, *(block->lColor));
 			}
 			 
 		}
@@ -175,6 +190,9 @@ void j1Map::generateFlatMap()
 					curr_block->type = STONE;
 				else if (curr_block->position.y >(worldData.groundStartHeight + (int)(worldData.mapMaxVariation*grassPerlin[curr_block->position.x])))
 					curr_block->type = DIRT;
+
+				curr_block->Source = new SDL_Rect({ i + (CHUNCK_WIDTH*(int)chuncks.size()), j ,16,16 });
+				curr_block->lColor = new Color(0, 0, 0, 255);
 
 				curr_chunck->blocks.push_back(curr_block);
 			}
