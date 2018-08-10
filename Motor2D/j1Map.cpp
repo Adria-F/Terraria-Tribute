@@ -112,11 +112,11 @@ bool j1Map::Update(float dt)
 			}
 			else 
 			{
-				if (block->lColor->a > alpha)
+				if (block->alpha >= alpha)
 				{
 					block->lColor->a = alpha;
 				}
-				else
+				else if(block->alpha < alpha)
 				{
 					block->lColor->a = block->alpha;
 				}
