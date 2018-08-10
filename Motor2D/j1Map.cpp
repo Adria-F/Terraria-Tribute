@@ -105,7 +105,22 @@ bool j1Map::Update(float dt)
 			}
 
 			iPoint pos = MapToWorld(block->position);
-			block->lColor->a = alpha;
+
+			if (!block->isLight)
+			{
+				block->lColor->a = alpha;
+			}
+			else 
+			{
+				if (block->lColor->a > alpha)
+				{
+					block->lColor->a = alpha;
+				}
+				else
+				{
+					block->lColor->a = block->alpha;
+				}
+			}
 
 			if (block->type == AIR)
 			{
@@ -613,7 +628,7 @@ chunck* j1Map::getChunckAt(int x)
 
 	int num = x/CHUNCK_WIDTH;
 
-	if (num < chuncks.size())
+	if (num < chuncks.size() && num>=0)
 		ret = chuncks[num];
 
 	return ret;
@@ -769,6 +784,37 @@ std::vector<block*> block::getNeighbors()
 
 	return ret;
 }
+
+std::vector<block*> j1Map::getRadiusNeighbors(int radius, int x, int y) 
+{
+	std::vector<block*> ret;
+	iPoint center = { x,y };
+
+	if (radius <= 0)
+		return ret;
+	else
+	{
+		for (int i = -1; i < 2; i++)
+		{
+			chunck* aux_chunck = getChunckAt(x+(i*CHUNCK_WIDTH));
+			if (aux_chunck) {
+				for (int j = 0; j < aux_chunck->blocks.size(); j++)
+				{
+					block* aux_block = aux_chunck->blocks[j];
+					iPoint block_pos = aux_block->position;
+					if (center.DistanceTo(block_pos) <= radius)
+					{
+						ret.push_back(aux_block);
+					}
+				}
+			}
+		}
+
+	}
+	
+	return ret;
+}
+
 
 void block::updateSection()
 {

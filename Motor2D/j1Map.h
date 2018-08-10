@@ -88,6 +88,9 @@ struct block
 
 	SDL_Rect* Source;
 	Color* lColor;
+	int alpha;
+
+	bool isLight = false;
 
 	bool falling_block = false;
 
@@ -166,6 +169,9 @@ public:
 	chunck* getChunckAt(int x);
 	//Map coordinates
 	block* getBlockAt(int x, int y);
+	
+	std::vector<block*> getRadiusNeighbors(int radius,int x, int y);
+
 
 	void loadBlocksTextures(pugi::xml_node textures);
 	void loadBlocksConnectionsData(pugi::xml_node connections);

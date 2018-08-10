@@ -58,6 +58,8 @@ public:
 
 	int DayNight();
 
+	void addLight();
+
 public:
 
 	SDL_Rect light_screen = {0, 0, 0, 0};
