@@ -23,6 +23,7 @@ class j1EntityManager;
 class j1CollisionManager;
 class j1Map;
 class Light;
+class j1Debug;
 
 class j1App
 {
@@ -105,6 +106,7 @@ public:
 	j1Map*				map;
 	j1CollisionManager* collisions;
 	Light*			lightEngine;
+	j1Debug*		debug;
 
 	bool fpsCapON = true;
 	std::string			load_game;

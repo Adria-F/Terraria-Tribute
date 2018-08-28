@@ -192,7 +192,7 @@ void j1Map::generateFlatMap()
 			newGenerationState(GENERATE_CAVES);
 			break;
 		}
-		chunck* curr_chunck = new chunck();
+		chunck* curr_chunck = new chunck(chuncks.size());
 		for (int i = 0; i < CHUNCK_WIDTH; i++)
 		{
 			for (int j = 0; j < worldData.world_height; j++)

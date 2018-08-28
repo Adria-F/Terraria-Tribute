@@ -102,11 +102,17 @@ struct block
 
 struct chunck
 {
+	chunck(int chuncksAmount)
+	{
+		id = chuncksAmount + 1;
+	}
+
 	~chunck()
 	{
 		blocks.clear();
 	}
 
+	int id = 0;
 	std::vector<block*> blocks;
 };
 
@@ -176,6 +182,9 @@ public:
 	void loadBlocksTextures(pugi::xml_node textures);
 	void loadBlocksConnectionsData(pugi::xml_node connections);
 
+	//maxValue/minValue: range of noise in scales from 0 to 1
+	//increment: percentage of maximum variation per block
+	//tendenceMargin: 100-(probability) of the variation going to the same direction (up/down)
 	void fillPerlinList(std::vector<float>& perlinList, int maxValue = 1, int minValue = -1, int increment = 10, int tendenceMargin = 20);
 
 	void newGenerationState(generatingState newState);
