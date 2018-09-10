@@ -49,8 +49,16 @@ bool j1Debug::Update(float dt)
 		block_t->setColor({ 255,255,255,255 });
 		chunck_t = App->gui->createText(70, 40, std::to_string(Chunck->id).c_str(), App->font->getFont("BebasNeue-Regular.ttf", 20), false);
 		chunck_t->setColor({ 255,255,255,255 });
-		biome_t = App->gui->createText(60, 70, "Plains", App->font->getFont("BebasNeue-Regular.ttf", 20), false);
-		biome_t->setColor({ 0,255,0,255 });
+		if (Chunck->biome == PLAINS)
+		{
+			biome_t = App->gui->createText(60, 70, "Plains", App->font->getFont("BebasNeue-Regular.ttf", 20), false);
+			biome_t->setColor({ 0,255,0,255 });
+		}
+		else if (Chunck->biome == DESERT)
+		{
+			biome_t = App->gui->createText(60, 70, "Desert", App->font->getFont("BebasNeue-Regular.ttf", 20), false);
+			biome_t->setColor({ 255,255,0,255 });
+		}
 		
 		App->render->DrawQuad({ 0,0,App->win->width, 110 }, Color(0, 0, 0, 75), true, false);
 

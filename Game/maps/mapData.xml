@@ -6,6 +6,10 @@
 	
 	<!-- FALLING -->
 	<texture blockID="20" path="maps/Tiles_3.png"/>
+	
+	<!-- VEGETATION -->
+	<texture blockID="50" path="maps/Tiles_4.png"/>
+	<texture blockID="51" path="maps/Tiles_80.png"/>
 </textures>
 
 <connections>

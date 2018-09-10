@@ -29,6 +29,8 @@
 
 #define FIRST_FALLING_BLOCK 20
 
+#define FIRST_VEGETATION_BLOCK 50
+
 struct SDL_Texture;
 struct Collider;
 struct Entity;
@@ -45,7 +47,17 @@ enum blockType
 	//FALLING
 	SAND = FIRST_FALLING_BLOCK,
 
+	//VEGETATION
+	TREE = FIRST_VEGETATION_BLOCK,
+	CACTUS,
+
 	MAX_TYPE
+};
+
+enum vegetationType
+{
+	TREE_PLANT,
+	CACTUS_PLANT
 };
 
 enum generatingState
@@ -61,6 +73,12 @@ enum generatingState
 	CONNECT_BLOCKS,
 
 	GENERATION_COMPLETED
+};
+
+enum biomeType
+{
+	PLAINS,
+	DESERT
 };
 
 struct WorldData
@@ -114,6 +132,7 @@ struct chunck
 
 	int id = 0;
 	std::vector<block*> blocks;
+	biomeType biome = PLAINS;
 };
 
 class j1Map : public j1Module
@@ -147,6 +166,8 @@ public:
 
 	void generateBiomes();
 
+	void spawnVegetation(int x, int y, vegetationType type, int minHeight = 4, int maxHeight = 10);
+
 	void cleanMapNoise(int iterations = 1);
 	void convertBlockIntoNeighbors(int x, int y);
 	blockType moreRepeatedNeighbor(block* Block);
@@ -177,7 +198,7 @@ public:
 	block* getBlockAt(int x, int y);
 	
 	std::vector<block*> getRadiusNeighbors(int radius,int x, int y);
-
+	std::vector<block*> getOvalNeighbors(iPoint center, int radius);
 
 	void loadBlocksTextures(pugi::xml_node textures);
 	void loadBlocksConnectionsData(pugi::xml_node connections);

@@ -376,19 +376,29 @@ void j1Map::generateBiomes()
 	int W = 50;
 	int H = 50;
 
-	for (int i = x - W / 2; i < x + W / 2; i++)
+	std::vector<block*> biome = getOvalNeighbors({ x,y-2 }, 50);
+	for (int i = 0; i < biome.size(); i++)
 	{
-		for (int j = y - H / 2; j < y + H / 2; j++)
-		{
-			block* Block2 = getBlockAt(i, j);
-			if (Block2 != nullptr && Block2->type != AIR && Block2->position.DistanceTo(Block->position) <= 23)
-			{
-				setBlock(Block2, SAND);
-			}
-		}
+		if (biome[i]->type != AIR)
+			setBlock(biome[i], SAND);
+		getChunckAt(biome[i]->position.x)->biome = DESERT;
 	}
 
+	/*for (int y = 0; y < worldData.world_height; y++)
+	{
+		if (getBlockAt(x, y)->type == AIR && getBlockAt(x, y + 1)->type != AIR)
+		{
+			spawnVegetation(x, y, TREE_PLANT);
+			break;
+		}
+	}*/
+
 	newGenerationState(CREATE_COLLIDERS);
+}
+
+void j1Map::spawnVegetation(int x, int y, vegetationType type, int minHeight, int maxHeight)
+{
+
 }
 
 void j1Map::cleanMapNoise(int iterations)
@@ -581,7 +591,7 @@ void j1Map::setBlock(block* Block, blockType type)
 	blockType previousType = Block->type;
 
 	Block->type = type;
-	if (type >= FIRST_FALLING_BLOCK)
+	if (type >= FIRST_FALLING_BLOCK && type < FIRST_VEGETATION_BLOCK)
 		Block->falling_block = true;
 	else
 		Block->falling_block = false;
@@ -812,6 +822,41 @@ std::vector<block*> j1Map::getRadiusNeighbors(int radius, int x, int y)
 
 	}
 	
+	return ret;
+}
+
+std::vector<block*> j1Map::getOvalNeighbors(iPoint center, int radius)
+{
+	std::vector<block*> ret;
+
+	for (int i = center.x - radius*2; i < center.x + radius*2; i++)
+	{
+		if (i < 0) i = 0;
+		if (i > worldData.world_width) break;
+		for (int j = center.y - radius*2; j < center.y + radius*2; j++)
+		{
+			if (j < 0) j = 0;
+			if (j > worldData.world_height) break;
+			float distance = center.DistanceNoSqrt({ i,j }) / 30;
+			float maxRadius = radius;
+			if (i - center.x != 0)
+			{
+				float division = (float)(center.y - j) / (float)(i - center.x);
+				float arctan = atan(division);
+				if (i - center.x < 0)
+					arctan += 3.14f;
+				float dcos = abs(cos(arctan));
+				maxRadius = radius*(0.65 + dcos);
+				if (maxRadius < radius)
+					maxRadius = radius;
+			}
+
+			block* Block = getBlockAt(i, j);
+			if (distance <= maxRadius && Block != nullptr)
+				ret.push_back(Block);
+		}
+	}
+
 	return ret;
 }
 
